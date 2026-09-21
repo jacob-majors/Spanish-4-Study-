@@ -1,0 +1,91 @@
+/* Hallmark · genre: editorial · theme: Almanac · anchor hue 60
+ * Portable token layer for SA Spanish 4 — Study Tool.
+ * Imported by app/globals.css. Values here are the source of truth.
+ */
+
+:root {
+  /* ---- paper & ink -------------------------------------------------- */
+  --color-paper:      oklch(97%   0.010 75);
+  --color-paper-2:    oklch(94.5% 0.012 72);
+  --color-paper-3:    oklch(91%   0.013 70);
+  --color-rule:       oklch(85%   0.012 70);
+  --color-rule-2:     oklch(72%   0.014 68);
+  --color-muted:      oklch(49%   0.014 62);
+  --color-ink-2:      oklch(34%   0.015 58);
+  --color-ink:        oklch(21%   0.016 55);
+
+  /* ---- signal ------------------------------------------------------- */
+  --color-accent:     oklch(45%   0.150 27);
+  --color-accent-ink: oklch(97%   0.010 75);
+  --color-good:       oklch(46%   0.110 148);
+  --color-focus:      oklch(52%   0.170 27);
+
+  /* ---- type --------------------------------------------------------- */
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-body:    var(--font-plex), ui-sans-serif, system-ui, sans-serif;
+  --font-outlier: var(--font-jetbrains), ui-monospace, monospace;
+
+  /* perfect fourth (1.333) anchored at 1rem */
+  --text-2xs: 0.6875rem;
+  --text-xs:  0.75rem;
+  --text-sm:  0.875rem;
+  --text-md:  1rem;
+  --text-lg:  1.333rem;
+  --text-xl:  1.777rem;
+  --text-2xl: 2.369rem;
+  --text-3xl: 3.157rem;
+  --text-display: clamp(2.369rem, 1.6rem + 3.4vw, 4.209rem);
+
+  /* ---- 4pt spacing scale -------------------------------------------- */
+  --space-3xs: 0.125rem;
+  --space-2xs: 0.25rem;
+  --space-xs:  0.5rem;
+  --space-sm:  0.75rem;
+  --space-md:  1rem;
+  --space-lg:  1.5rem;
+  --space-xl:  2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+  --space-4xl: 9rem;
+
+  --page-gutter: clamp(1rem, 4vw, 2.5rem);
+  --measure: 68ch;
+
+  /* ---- rules & radius ----------------------------------------------- */
+  --rule-hair: 1px;
+  --rule-thick: 2px;
+  --radius-none: 0px;
+  --radius-input: 2px;
+
+  /* ---- motion ------------------------------------------------------- */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long:  420ms;
+
+  /* ---- z scale ------------------------------------------------------ */
+  --z-base: 1;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-modal: 400;
+}
+
+/* Night. Hues are unchanged; only lightness and chroma move. */
+:root[data-theme="night"] {
+  --color-paper:      oklch(15%   0.010 60);
+  --color-paper-2:    oklch(18.5% 0.011 60);
+  --color-paper-3:    oklch(23%   0.012 60);
+  --color-rule:       oklch(30%   0.012 58);
+  --color-rule-2:     oklch(42%   0.013 58);
+  --color-muted:      oklch(67%   0.013 65);
+  --color-ink-2:      oklch(81%   0.011 70);
+  --color-ink:        oklch(93%   0.008 75);
+
+  --color-accent:     oklch(66%   0.140 30);
+  --color-accent-ink: oklch(15%   0.010 60);
+  --color-good:       oklch(66%   0.105 150);
+  --color-focus:      oklch(70%   0.150 30);
+}

@@ -5,24 +5,24 @@ import { useState } from "react";
 import { useSet } from "@/lib/useSet";
 import { statsFor, progressFor, MASTERED_BOX } from "@/lib/srs";
 import { upsertSet } from "@/lib/storage";
-import { Ring, ProgressBar, SpeakButton } from "@/components/ui";
+import { ProgressBar, SpeakButton } from "@/components/ui";
 import { NotFound } from "@/components/SetHeader";
 
 const MODES = [
-  { href: "flashcards", name: "Flashcards", desc: "Flip through with audio", icon: "▢" },
-  { href: "learn", name: "Learn", desc: "Spaced repetition that adapts", icon: "◈" },
-  { href: "write", name: "Write", desc: "Type it out, accents and all", icon: "✎" },
-  { href: "match", name: "Match", desc: "Beat your best time", icon: "⧉" },
-  { href: "test", name: "Practice test", desc: "Graded, mixed question types", icon: "✓" },
+  { href: "flashcards", name: "Fichas", desc: "Flip through with audio" },
+  { href: "learn", name: "Aprender", desc: "Spaced repetition that adapts" },
+  { href: "write", name: "Escribir", desc: "Type it out, accents and all" },
+  { href: "match", name: "Emparejar", desc: "Beat your best time" },
+  { href: "test", name: "Examen", desc: "Graded, mixed question types" },
 ];
 
 export default function SetPage() {
   const { set, ready } = useSet();
-  const [showStarredOnly, setShowStarredOnly] = useState(false);
+  const [starredOnly, setStarredOnly] = useState(false);
 
   if (!set) return ready ? <NotFound /> : null;
   const st = statsFor(set);
-  const cards = showStarredOnly ? set.cards.filter((c) => c.starred) : set.cards;
+  const cards = starredOnly ? set.cards.filter((c) => c.starred) : set.cards;
   const starCount = set.cards.filter((c) => c.starred).length;
 
   function toggleStar(cardId: string) {
@@ -35,71 +35,128 @@ export default function SetPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="card-shell p-6 relative overflow-hidden">
-        <div className="absolute top-0 left-0 right-0 h-1" style={{ background: set.color }} />
-        <div className="flex flex-wrap items-start gap-5">
-          <div className="flex-1 min-w-60">
-            <h1 className="text-2xl font-bold">{set.title}</h1>
-            {set.description && <p className="muted text-sm mt-1">{set.description}</p>}
-            <div className="flex flex-wrap gap-2 mt-3">
-              <span className="chip">{st.total} terms</span>
-              <span className="chip" style={{ color: "var(--good)" }}>{st.mastered} mastered</span>
-              <span className="chip">{st.learning} learning</span>
-              {st.dueNow > 0 && <span className="chip" style={{ color: "var(--warn)" }}>{st.dueNow} due for review</span>}
-              {st.accuracy > 0 && <span className="chip">{st.accuracy}% accuracy</span>}
-            </div>
+    <div>
+      {/* Catalogue masthead: title, then the counts as a spec strip. */}
+      <p className="label">Lista de vocabulario</p>
+      <h1 className="display measure" style={{ fontSize: "var(--text-2xl)", marginTop: "var(--space-xs)" }}>
+        {set.title}
+      </h1>
+      {set.description && (
+        <p className="muted measure" style={{ marginTop: "var(--space-sm)" }}>{set.description}</p>
+      )}
+
+      <dl
+        className="grid gap-x-8 gap-y-3"
+        style={{
+          gridTemplateColumns: "repeat(auto-fit, minmax(7rem, 1fr))",
+          marginTop: "var(--space-lg)",
+          borderTop: "var(--rule-thick) solid var(--color-ink)",
+          paddingTop: "var(--space-sm)",
+        }}
+      >
+        {([
+          ["Términos", st.total, undefined],
+          ["Dominados", st.mastered, "good"],
+          ["Aprendiendo", st.learning, undefined],
+          ["Para repasar", st.dueNow, st.dueNow ? "accent" : undefined],
+          ["Acierto", st.accuracy ? `${st.accuracy}%` : "—", undefined],
+        ] as const).map(([label, value, tone]) => (
+          <div key={label}>
+            <dt className="label">{label}</dt>
+            <dd
+              className="data tnum"
+              style={{
+                fontSize: "var(--text-lg)",
+                marginTop: 2,
+                color: tone === "good" ? "var(--color-good)" : tone === "accent" ? "var(--color-accent)" : "var(--color-ink)",
+              }}
+            >
+              {value}
+            </dd>
           </div>
-          <Ring value={st.percent} size={84} label="mastered" />
-        </div>
-        <div className="mt-4"><ProgressBar value={st.percent} tone={st.percent >= 80 ? "good" : "accent"} /></div>
+        ))}
+      </dl>
+
+      <div style={{ marginTop: "var(--space-md)", maxWidth: "40rem" }}>
+        <ProgressBar value={st.percent} tone={st.percent >= 80 ? "good" : "accent"} />
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        {MODES.map((m) => (
-          <Link key={m.href} href={`/sets/${set.id}/${m.href}`}
-            className="card-shell p-4 hover:-translate-y-0.5 transition-transform">
-            <div className="text-xl" style={{ color: set.color }}>{m.icon}</div>
-            <div className="font-semibold mt-1.5">{m.name}</div>
-            <div className="text-xs muted mt-0.5">{m.desc}</div>
+      {/* Modes as a ruled list — not five identical icon tiles. */}
+      <section style={{ marginTop: "var(--space-2xl)" }}>
+        <h2 className="display" style={{ fontSize: "var(--text-xl)", borderBottom: "var(--rule-thick) solid var(--color-ink)", paddingBottom: "var(--space-xs)" }}>
+          Cómo estudiarla
+        </h2>
+        {MODES.map((m, i) => (
+          <Link key={m.href} href={`/sets/${set.id}/${m.href}`} className="row" style={{ textDecoration: "none", color: "inherit" }}>
+            <span className="data shrink-0" style={{ color: "var(--color-muted)", fontSize: "var(--text-xs)", width: "2ch" }}>
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="display flex-1" style={{ fontSize: "var(--text-lg)" }}>{m.name}</span>
+            <span className="muted hidden sm:block" style={{ fontSize: "var(--text-sm)" }}>{m.desc}</span>
+            <span className="tag shrink-0" aria-hidden="true">→</span>
           </Link>
         ))}
-      </div>
+      </section>
 
-      <div>
-        <div className="flex flex-wrap items-center gap-3 mb-3">
-          <h2 className="text-lg font-bold">Terms</h2>
+      {/* The inventory itself, as a ruled table. */}
+      <section style={{ marginTop: "var(--space-2xl)" }}>
+        <div
+          className="flex flex-wrap items-baseline gap-x-3 gap-y-1"
+          style={{ borderBottom: "var(--rule-thick) solid var(--color-ink)", paddingBottom: "var(--space-xs)" }}
+        >
+          <h2 className="display" style={{ fontSize: "var(--text-xl)" }}>Términos</h2>
           {starCount > 0 && (
-            <button className="btn btn-ghost !py-1 !px-3 text-xs" onClick={() => setShowStarredOnly(!showStarredOnly)}>
-              {showStarredOnly ? "Show all" : `Starred only (${starCount})`}
+            <button className="label ml-auto" onClick={() => setStarredOnly(!starredOnly)}
+              style={{ color: "var(--color-accent)", cursor: "pointer" }}>
+              {starredOnly ? "Show all" : `Marked only (${starCount})`}
             </button>
           )}
         </div>
-        <div className="space-y-1.5">
-          {cards.map((c) => {
-            const p = progressFor(set, c.id, "es-en");
-            const mastered = p.box >= MASTERED_BOX;
-            return (
-              <div key={c.id} className="card-shell px-4 py-3 flex items-center gap-3">
-                <button onClick={() => toggleStar(c.id)} aria-label="Star term"
-                  className="text-lg leading-none shrink-0"
-                  style={{ color: c.starred ? "var(--warn)" : "var(--muted)", opacity: c.starred ? 1 : 0.45 }}>
-                  ★
-                </button>
-                <div className="flex-1 grid sm:grid-cols-2 gap-1 sm:gap-4 min-w-0">
-                  <div className="font-medium">{c.term}</div>
-                  <div className="muted text-sm">{c.def}</div>
-                </div>
-                {mastered && <span className="chip shrink-0" style={{ color: "var(--good)" }}>mastered</span>}
-                {!mastered && p.correct + p.wrong > 0 && (
-                  <span className="chip shrink-0">{p.correct}/{p.correct + p.wrong}</span>
-                )}
-                <SpeakButton text={c.term} />
-              </div>
-            );
-          })}
-        </div>
-      </div>
+
+        <table className="sheet" style={{ marginTop: "var(--space-xs)" }}>
+          <thead>
+            <tr>
+              <th style={{ width: "3ch" }}>#</th>
+              <th style={{ width: "2ch" }}><span className="sr-only">Marked</span></th>
+              <th>Español</th>
+              <th>Inglés</th>
+              <th style={{ width: "6ch", textAlign: "right" }}>Nivel</th>
+              <th style={{ width: "3ch" }}><span className="sr-only">Audio</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {cards.map((c, i) => {
+              const p = progressFor(set, c.id, "es-en");
+              const mastered = p.box >= MASTERED_BOX;
+              const seen = p.correct + p.wrong > 0;
+              return (
+                <tr key={c.id}>
+                  <td className="data" style={{ color: "var(--color-muted)", fontSize: "var(--text-xs)" }}>
+                    {String(i + 1).padStart(2, "0")}
+                  </td>
+                  <td>
+                    <button onClick={() => toggleStar(c.id)}
+                      aria-label={c.starred ? `Unmark ${c.term}` : `Mark ${c.term}`}
+                      aria-pressed={!!c.starred}
+                      style={{
+                        cursor: "pointer", lineHeight: 1, fontSize: "var(--text-sm)",
+                        color: c.starred ? "var(--color-accent)" : "var(--color-rule-2)",
+                      }}>
+                      {c.starred ? "●" : "○"}
+                    </button>
+                  </td>
+                  <td style={{ fontWeight: 500 }}>{c.term}</td>
+                  <td className="muted">{c.def}</td>
+                  <td className="data tnum" style={{ textAlign: "right", fontSize: "var(--text-xs)", color: mastered ? "var(--color-good)" : "var(--color-muted)" }}>
+                    {mastered ? "✓" : seen ? `${p.correct}/${p.correct + p.wrong}` : "—"}
+                  </td>
+                  <td><SpeakButton text={c.term} /></td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
     </div>
   );
 }

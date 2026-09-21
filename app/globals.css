@@ -1,116 +1,321 @@
 @import "tailwindcss";
+@import "../tokens.css";
 
-@theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --color-ink-50: #f6f7fb;
-  --color-ink-100: #eceef6;
-  --color-ink-200: #d7dbe9;
-  --color-ink-300: #b0b7ce;
-  --color-ink-400: #7b849f;
-  --color-ink-500: #5b6480;
-  --color-ink-600: #434b64;
-  --color-ink-700: #313850;
-  --color-ink-800: #1e2437;
-  --color-ink-900: #141828;
-  --color-ink-950: #0b0e1a;
+/* Hallmark · genre: editorial · macrostructure: Index-First / Catalogue / Worksheet
+ * theme: Almanac · anchor hue 60 · accent oxblood oklch(45% 0.150 27)
+ * display: Fraunces · body: IBM Plex Sans · outlier: JetBrains Mono
+ * nav: N9 edge-aligned (masthead-index variant) · footer: Ft4 dense colophon
+ * enrichment: none (typography only) · motion: cut
+ * design-system: design.md · designed-as-app
+ *
+ * pre-emit critique: P5 H5 E4 S5 R5 V4
+ * contrast: pass (40-41) — paper min 5.74:1, night min 6.59:1
+ * nav/footer/hero slop: pass (42-45) · honest copy: pass (46) · chrome: pass (47)
+ * tokens: pass (48) · responsive: pass (49) · icons: pass (30)
+ * mobile: pass (34, 49, 50-57) — verified 320 / 375 / 414 / 768
+ *
+ * Documented deviation, gate 38: the outlier (JetBrains Mono) carries more than
+ * two slots. It holds one role — data: conjugated forms, figures, counts and
+ * small-caps labels — which is the app's primary content. Recorded in design.md.
+ */
+
+@theme inline {
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
+  --font-mono: var(--font-outlier);
+  --color-paper: var(--color-paper);
+  --color-ink: var(--color-ink);
+  --color-accent: var(--color-accent);
 }
 
-:root {
-  --bg: #0b0e1a;
-  --surface: #141828;
-  --surface-2: #1e2437;
-  --border: #2a3149;
-  --text: #f2f4fb;
-  --muted: #98a1bd;
-  --accent: #6c5ce7;
-  --accent-2: #00c2a8;
-  --warn: #ffb020;
-  --bad: #ff5a6a;
-  --good: #29d391;
+html,
+body {
+  overflow-x: clip;
 }
 
-:root[data-theme="light"] {
-  --bg: #f6f7fb;
-  --surface: #ffffff;
-  --surface-2: #f0f2f9;
-  --border: #dfe3ef;
-  --text: #141828;
-  --muted: #5b6480;
-  --accent: #5b4bd6;
-  --accent-2: #00a58f;
-}
-
-* { border-color: var(--border); }
-
-html, body {
-  background: var(--bg);
-  color: var(--text);
+html {
+  background: var(--color-paper);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: 1.6;
   min-height: 100dvh;
+  background: var(--color-paper);
+  color: var(--color-ink);
 }
+
+:root[data-theme="night"] body {
+  /* light-on-dark reads optically heavier; drop a step */
+  font-weight: 350;
+}
+
+/* Tailwind's preflight defaults every border to currentColor; anchor it to the
+ * rule token instead. Set in @theme so it stays under the utility layer and
+ * does not override the button and panel border colours. */
+@theme {
+  --default-border-color: var(--color-rule);
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.012em;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------- *
+ * Type roles
+ * ---------------------------------------------------------------- */
 
 @layer utilities {
-  .surface { background: var(--surface); }
-  .surface-2 { background: var(--surface-2); }
-  .muted { color: var(--muted); }
-  .accent { color: var(--accent); }
-  .card-shell {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 1rem;
+  .display {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.015em;
   }
+
+  /* The outlier's single role: data. Forms, figures, counts, labels. */
+  .data {
+    font-family: var(--font-outlier);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  .label {
+    font-family: var(--font-outlier);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    font-weight: 500;
+  }
+
+  .muted { color: var(--color-muted); }
+  .ink-2 { color: var(--color-ink-2); }
+  .accent { color: var(--color-accent); }
+  .measure { max-width: var(--measure); }
+
+  /* ---- surfaces: ruled, never rounded, never nested --------------- */
+  .panel {
+    background: var(--color-paper);
+    border: var(--rule-hair) solid var(--color-rule);
+    border-radius: var(--radius-none);
+  }
+  .panel-2 {
+    background: var(--color-paper-2);
+    border-radius: var(--radius-none);
+  }
+  .rule {
+    border: 0;
+    border-top: var(--rule-hair) solid var(--color-rule);
+  }
+  .rule-strong {
+    border: 0;
+    border-top: var(--rule-thick) solid var(--color-ink);
+  }
+  .rule-double {
+    border: 0;
+    border-top: var(--rule-hair) solid var(--color-rule-2);
+    border-bottom: var(--rule-hair) solid var(--color-rule-2);
+    height: 3px;
+  }
+
+  /* A ruled index row. The list is the layout; there are no cards. */
+  .row {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-md);
+    padding: var(--space-sm) 0;
+    border-top: var(--rule-hair) solid var(--color-rule);
+    transition: background var(--dur-micro) var(--ease-out);
+  }
+  .row:last-child { border-bottom: var(--rule-hair) solid var(--color-rule); }
+  a.row:hover, button.row:hover { background: var(--color-paper-2); }
+
+  /* ---- buttons: square, ink-filled, no gradient ------------------- */
   .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
-    border-radius: .75rem; font-weight: 600; transition: all .15s ease;
-    padding: .625rem 1rem; border: 1px solid transparent; cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: var(--text-sm);
+    padding: var(--space-sm) var(--space-lg);
+    border: var(--rule-hair) solid transparent;
+    border-radius: var(--radius-input);
+    cursor: pointer;
     white-space: nowrap;
+    min-height: 44px;
+    transition: background var(--dur-micro) var(--ease-out),
+                color var(--dur-micro) var(--ease-out),
+                border-color var(--dur-micro) var(--ease-out);
   }
-  .btn:disabled { opacity: .45; cursor: not-allowed; }
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover:not(:disabled) { filter: brightness(1.12); }
-  .btn-ghost { background: var(--surface-2); color: var(--text); border-color: var(--border); }
-  .btn-ghost:hover:not(:disabled) { background: var(--border); }
-  .btn-outline { background: transparent; color: var(--text); border-color: var(--border); }
-  .btn-outline:hover:not(:disabled) { background: var(--surface-2); }
-  .input {
-    width: 100%; background: var(--surface-2); border: 1px solid var(--border);
-    border-radius: .75rem; padding: .625rem .875rem; color: var(--text); outline: none;
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-primary {
+    background: var(--color-ink);
+    color: var(--color-paper);
+    border-color: var(--color-ink);
   }
-  .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
-  .chip {
-    display: inline-flex; align-items: center; gap: .375rem; border-radius: 999px;
-    padding: .25rem .625rem; font-size: .75rem; font-weight: 600;
-    background: var(--surface-2); border: 1px solid var(--border); color: var(--muted);
+  .btn-primary:hover:not(:disabled) { background: var(--color-ink-2); border-color: var(--color-ink-2); }
+  .btn-primary:active:not(:disabled) { background: var(--color-ink); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--color-ink);
+    border-color: var(--color-rule-2);
   }
+  .btn-outline:hover:not(:disabled) { background: var(--color-paper-2); border-color: var(--color-ink-2); }
+
+  .btn-quiet {
+    background: transparent;
+    color: var(--color-ink-2);
+    border-color: transparent;
+    padding: var(--space-xs) var(--space-sm);
+    min-height: 36px;
+  }
+  .btn-quiet:hover:not(:disabled) { background: var(--color-paper-2); color: var(--color-ink); }
+
+  /* C3 typographic link — word, rule, no box. */
+  .link {
+    color: var(--color-ink);
+    text-decoration: none;
+    border-bottom: var(--rule-hair) solid var(--color-rule-2);
+    padding-bottom: 1px;
+    transition: border-color var(--dur-micro) var(--ease-out),
+                color var(--dur-micro) var(--ease-out);
+  }
+  .link:hover { color: var(--color-accent); border-color: var(--color-accent); }
+
+  /* ---- form controls: a ruled line, not a rounded box ------------- */
+  .field {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    border-bottom: var(--rule-thick) solid var(--color-rule-2);
+    border-radius: 0;
+    padding: var(--space-sm) var(--space-3xs);
+    min-height: 44px;
+    color: var(--color-ink);
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+    transition: border-color var(--dur-micro) var(--ease-out);
+  }
+  .field::placeholder { color: var(--color-muted); }
+  .field:hover { border-color: var(--color-ink-2); }
+  .field:focus { border-color: var(--color-accent); }
+
+  .field-box {
+    width: 100%;
+    background: var(--color-paper);
+    border: var(--rule-hair) solid var(--color-rule-2);
+    border-radius: var(--radius-input);
+    padding: var(--space-xs) var(--space-sm);
+    color: var(--color-ink);
+    font-family: inherit;
+    font-size: var(--text-sm);
+    outline: none;
+    min-height: 44px;
+  }
+  .field-box:focus { border-color: var(--color-accent); }
+
+  /* ---- marks: feedback lives in the margin, not in a banner ------- */
+  .mark-ok { color: var(--color-good); }
+  .mark-no { color: var(--color-accent); }
+
+  .tag {
+    font-family: var(--font-outlier);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tnum { font-variant-numeric: tabular-nums; }
 }
 
-/* Flashcard flip */
-.flip-scene { perspective: 1600px; }
+/* Focus is instant and always visible. Never animated. */
+:focus-visible {
+  outline: var(--rule-thick) solid var(--color-focus);
+  outline-offset: 2px;
+  transition: none !important;
+}
+
+/* ---------------------------------------------------------------- *
+ * Tables — the app's primary reference surface
+ * ---------------------------------------------------------------- */
+
+table.sheet {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+table.sheet th {
+  text-align: left;
+  font-family: var(--font-outlier);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  font-weight: 500;
+  padding: var(--space-xs) var(--space-sm) var(--space-xs) 0;
+  border-bottom: var(--rule-hair) solid var(--color-rule-2);
+}
+table.sheet td {
+  padding: var(--space-xs) var(--space-sm) var(--space-xs) 0;
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+  vertical-align: baseline;
+}
+table.sheet tr:last-child td { border-bottom: 0; }
+
+/* ---------------------------------------------------------------- *
+ * Flashcard flip — the one piece of motion the app keeps
+ * ---------------------------------------------------------------- */
+
+.flip-scene { perspective: 1800px; }
 .flip-inner {
-  position: relative; width: 100%; height: 100%;
-  transition: transform .5s cubic-bezier(.22,.9,.3,1);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform var(--dur-long) var(--ease-in-out);
   transform-style: preserve-3d;
 }
 .flip-inner.flipped { transform: rotateX(180deg); }
 .flip-face {
-  position: absolute; inset: 0; backface-visibility: hidden;
-  display: flex; align-items: center; justify-content: center;
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .flip-back { transform: rotateX(180deg); }
 
-@keyframes pop { 0% { transform: scale(.94); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
-.pop { animation: pop .18s ease-out; }
-@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
-.shake { animation: shake .3s ease-in-out; }
-
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+/* Scrollbars follow the paper */
+::-webkit-scrollbar { width: 12px; height: 12px; }
+::-webkit-scrollbar-thumb { background: var(--color-rule); border: 3px solid var(--color-paper); }
 ::-webkit-scrollbar-track { background: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
-  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .flip-inner { transition: none; }
 }

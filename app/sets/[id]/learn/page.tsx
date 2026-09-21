@@ -62,17 +62,17 @@ export default function LearnPage() {
 
   if (!queue.length) {
     return (
-      <div className="max-w-2xl mx-auto">
-        <SetHeader set={set} mode="Learn" />
-        <div className="card-shell p-10 text-center">
-          <div className="text-lg font-semibold">Nothing is due right now.</div>
-          <p className="muted text-sm mt-1.5">
+      <div style={{ maxWidth: "42rem" }}>
+        <SetHeader set={set} mode="Aprender" />
+        <div style={{ borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-md)" }}>
+          <h1 className="display" style={{ fontSize: "var(--text-xl)" }}>Nothing is due right now.</h1>
+          <p className="muted measure" style={{ marginTop: "var(--space-xs)" }}>
             {stats?.mastered === stats?.total
               ? "You have mastered every term in this set. Spaced repetition will bring them back later."
               : "Come back in a bit, or run a practice test to push further."}
           </p>
-          <div className="flex gap-2 justify-center mt-5">
-            <button className="btn btn-ghost" onClick={() => setRound((r) => r + 1)}>Study anyway</button>
+          <div className="flex flex-wrap gap-3" style={{ marginTop: "var(--space-lg)" }}>
+            <button className="btn btn-outline" onClick={() => setRound((r) => r + 1)}>Study anyway</button>
             <Link href={`/sets/${set.id}/test`} className="btn btn-primary">Practice test</Link>
           </div>
         </div>
@@ -109,19 +109,21 @@ export default function LearnPage() {
   if (finished) {
     const pct = Math.round((tally.right / Math.max(1, tally.right + tally.wrong)) * 100);
     return (
-      <div className="max-w-2xl mx-auto">
-        <SetHeader set={set} mode="Learn" />
-        <div className="card-shell p-8 text-center">
-          <div className="text-4xl font-extrabold" style={{ color: pct >= 80 ? "var(--good)" : "var(--warn)" }}>{pct}%</div>
-          <p className="muted mt-1">{tally.right} right, {tally.wrong} missed this round.</p>
-          <p className="text-sm muted mt-3 max-w-sm mx-auto">
+      <div style={{ maxWidth: "42rem" }}>
+        <SetHeader set={set} mode="Aprender" />
+        <div style={{ borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-md)" }}>
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
+            <span className="data tnum" style={{ fontSize: "var(--text-display)", lineHeight: 1, color: pct >= 80 ? "var(--color-good)" : "var(--color-accent)" }}>{pct}</span>
+            <span className="tag" style={{ marginLeft: "auto" }}>{tally.right} right · {tally.wrong} missed</span>
+          </div>
+          <p className="muted measure" style={{ marginTop: "var(--space-md)", fontSize: "var(--text-sm)" }}>
             Terms you missed come back sooner; terms you nailed get pushed further out. Another round
             will look different.
           </p>
-          <div className="flex flex-wrap gap-2 justify-center mt-5">
+          <div className="flex flex-wrap gap-3" style={{ marginTop: "var(--space-lg)" }}>
             <button className="btn btn-primary" onClick={() => setRound((r) => r + 1)}>Next round</button>
             <Link href={`/sets/${set.id}/test`} className="btn btn-outline">Practice test</Link>
-            <Link href={`/sets/${set.id}`} className="btn btn-ghost">Back to set</Link>
+            <Link href={`/sets/${set.id}`} className="link label self-center">Back to set →</Link>
           </div>
         </div>
       </div>
@@ -132,51 +134,57 @@ export default function LearnPage() {
   const expected = step.dir === "es-en" ? step.card.def : step.card.term;
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <SetHeader set={set} mode="Learn" />
+    <div style={{ maxWidth: "42rem" }}>
+      <SetHeader set={set} mode="Aprender" />
 
-      <div className="flex items-center gap-3 text-sm mb-4">
-        <span className="muted">{idx + 1} / {queue.length}</span>
-        <div className="flex-1"><ProgressBar value={(idx / queue.length) * 100} /></div>
-        <span className="chip" style={{ color: "var(--good)" }}>{tally.right}</span>
-        <span className="chip" style={{ color: "var(--bad)" }}>{tally.wrong}</span>
+      <div className="flex items-center gap-4" style={{ borderBottom: "var(--rule-hair) solid var(--color-rule)", paddingBottom: "var(--space-xs)" }}>
+        <span className="data tnum tag">{idx + 1}/{queue.length}</span>
+        <span className="flex-1"><ProgressBar value={(idx / queue.length) * 100} /></span>
+        <span className="data tnum tag" style={{ color: "var(--color-good)" }}>{tally.right}</span>
+        <span className="data tnum tag" style={{ color: "var(--color-accent)" }}>{tally.wrong}</span>
       </div>
 
-      <div className="card-shell p-6">
-        <div className="text-xs muted uppercase tracking-wider">
-          {step.kind === "mc" ? "Pick the answer" : step.dir === "es-en" ? "Type the English" : "Type the Spanish"}
-        </div>
-        <div className="flex items-center gap-2 mt-2">
-          <div className="text-2xl md:text-3xl font-bold">{prompt}</div>
+      <div style={{ marginTop: "var(--space-2xl)" }}>
+        <p className="label">
+          {step.kind === "mc" ? "Elige la respuesta" : step.dir === "es-en" ? "Escribe en inglés" : "Escribe en español"}
+        </p>
+        <div className="flex items-baseline gap-2 flex-wrap" style={{ marginTop: "var(--space-xs)" }}>
+          <h1 className="display" style={{ fontSize: "var(--text-2xl)" }}>{prompt}</h1>
           {step.dir === "es-en" && <SpeakButton text={step.card.term} />}
         </div>
 
         {step.kind === "mc" ? (
-          <div className="grid sm:grid-cols-2 gap-2 mt-6">
-            {choices.map((c) => {
+          <div className="grid gap-x-6" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 15rem), 1fr))", marginTop: "var(--space-xl)" }}>
+            {choices.map((c, ci) => {
               const isCorrect = c === expected;
-              const chosenWrong = !!feedback && !feedback.ok && !isCorrect;
+              const dimmed = !!feedback && !isCorrect;
               return (
                 <button
                   key={c}
                   disabled={!!feedback}
                   onClick={() => submit(c)}
-                  className="btn btn-outline !justify-start text-left !py-3"
-                  style={feedback && isCorrect
-                    ? { borderColor: "var(--good)", color: "var(--good)" }
-                    : chosenWrong ? { opacity: 0.5 } : undefined}
+                  className="flex items-baseline gap-3 text-left"
+                  style={{
+                    paddingBlock: "var(--space-xs)", minHeight: 44,
+                    borderTop: "var(--rule-hair) solid var(--color-rule)",
+                    opacity: dimmed ? 0.45 : 1,
+                    color: feedback && isCorrect ? "var(--color-good)" : "var(--color-ink)",
+                  }}
                 >
-                  {c}
+                  <span className="data shrink-0" style={{ fontSize: "var(--text-xs)", color: "var(--color-muted)" }}>{"abcd"[ci] ?? "·"}</span>
+                  <span>{c}</span>
                 </button>
               );
             })}
           </div>
         ) : (
-          <form className="mt-6 space-y-3" onSubmit={(e) => { e.preventDefault(); feedback ? advance() : submit(input); }}>
+          <form style={{ marginTop: "var(--space-xl)", maxWidth: "26rem" }} onSubmit={(e) => { e.preventDefault(); feedback ? advance() : submit(input); }}>
             <input
               ref={inputRef}
-              className="input text-lg"
-              placeholder="Type your answer…"
+              className="field"
+              style={{ fontSize: "var(--text-lg)" }}
+              placeholder="…"
+              aria-label="Your answer"
               value={input}
               disabled={!!feedback}
               autoComplete="off"
@@ -185,28 +193,36 @@ export default function LearnPage() {
               onChange={(e) => setInput(e.target.value)}
             />
             {step.dir === "en-es" && !feedback && (
-              <AccentKeys onInsert={(ch) => { setInput((v) => v + ch); inputRef.current?.focus(); }} />
+              <div style={{ marginTop: "var(--space-md)" }}>
+                <AccentKeys onInsert={(ch) => { setInput((v) => v + ch); inputRef.current?.focus(); }} />
+              </div>
             )}
-            {!feedback && <button className="btn btn-primary" type="submit">Check</button>}
+            {!feedback && <button className="btn btn-primary" type="submit" style={{ marginTop: "var(--space-lg)" }}>Check</button>}
           </form>
         )}
 
         {feedback && (
-          <div className={`mt-5 rounded-xl p-4 pop ${feedback.ok ? "" : "shake"}`}
-            style={{ background: "var(--surface-2)", borderLeft: `3px solid ${feedback.ok ? "var(--good)" : "var(--bad)"}` }}>
-            <div className="font-semibold" style={{ color: feedback.ok ? "var(--good)" : "var(--bad)" }}>
-              {feedback.ok ? "Correct" : "Not quite"}
-            </div>
-            <div className="text-sm mt-1">{feedback.message ?? <>Answer: <strong>{feedback.correct}</strong></>}</div>
-            <div className="text-xs muted mt-1">{step.card.term} — {step.card.def}</div>
-            <button className="btn btn-primary mt-3" onClick={advance} autoFocus>Continue →</button>
+          <div style={{ marginTop: "var(--space-xl)", borderTop: "var(--rule-thick) solid", borderColor: feedback.ok ? "var(--color-good)" : "var(--color-accent)", paddingTop: "var(--space-sm)" }}>
+            <p className="flex items-baseline gap-2">
+              <span className="data" aria-hidden="true" style={{ color: feedback.ok ? "var(--color-good)" : "var(--color-accent)" }}>
+                {feedback.ok ? "✓" : "✗"}
+              </span>
+              <span className="label" style={{ color: feedback.ok ? "var(--color-good)" : "var(--color-accent)" }}>
+                {feedback.ok ? "Correcto" : "Incorrecto"}
+              </span>
+              {!feedback.ok && <span style={{ fontSize: "var(--text-lg)" }}>{feedback.correct}</span>}
+            </p>
+            {feedback.message && <p className="muted" style={{ fontSize: "var(--text-sm)", marginTop: "var(--space-3xs)" }}>{feedback.message}</p>}
+            <p className="tag" style={{ marginTop: "var(--space-xs)" }}>{step.card.term} — {step.card.def}</p>
+            <button className="btn btn-primary" style={{ marginTop: "var(--space-lg)" }} onClick={advance} autoFocus>Continue</button>
           </div>
         )}
       </div>
 
-      <div className="card-shell p-4 mt-4 flex flex-wrap gap-5 items-center">
+      <div className="flex flex-wrap gap-4 items-center"
+        style={{ marginTop: "var(--space-2xl)", borderTop: "var(--rule-hair) solid var(--color-rule)", paddingTop: "var(--space-md)" }}>
         <Toggle checked={audioOn} onChange={setAudioOn} label="Say the Spanish after each answer" />
-        <span className="text-xs muted ml-auto">Enter checks, then Enter again continues</span>
+        <span className="tag ml-auto">enter checks, enter again continues</span>
       </div>
     </div>
   );

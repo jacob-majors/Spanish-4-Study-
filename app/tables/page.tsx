@@ -12,63 +12,71 @@ const MOODS = ["Indicativo", "Subjuntivo", "Imperativo", "Formas impersonales"] 
 
 function Tables() {
   const params = useSearchParams();
-  const initial = params.get("verb") ?? "tener";
   const [q, setQ] = useState("");
-  const [active, setActive] = useState(initial);
+  const [active, setActive] = useState(params.get("verb") ?? "tener");
 
   const verb = VERB_LIST.find((v) => v.infinitive === active) ?? VERB_LIST[0];
   const results = q
-    ? VERB_LIST.filter((v) => v.infinitive.includes(q.toLowerCase()) || v.english.toLowerCase().includes(q.toLowerCase())).slice(0, 40)
+    ? VERB_LIST.filter(
+        (v) => v.infinitive.includes(q.toLowerCase()) || v.english.toLowerCase().includes(q.toLowerCase()),
+      ).slice(0, 48)
     : [];
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold">Verb tables</h1>
-        <Link href="/conjugate" className="btn btn-primary text-sm ml-auto">Drill these instead</Link>
+    <div>
+      <p className="label">Tablas de verbos</p>
+      <div className="flex flex-wrap items-end gap-4" style={{ marginTop: "var(--space-xs)" }}>
+        <h1 className="display" style={{ fontSize: "var(--text-2xl)" }}>Referencia</h1>
+        <Link href="/conjugate" className="link label ml-auto">Drill these instead →</Link>
       </div>
 
-      <div className="card-shell p-4">
-        <input className="input" placeholder={`Search ${VERB_LIST.length} verbs — "salir", "to leave"…`}
-          value={q} onChange={(e) => setQ(e.target.value)} />
-        {results.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-3 max-h-40 overflow-auto">
-            {results.map((v) => (
-              <button key={v.infinitive} onClick={() => { setActive(v.infinitive); setQ(""); }} title={v.english}
-                className="btn btn-ghost !py-1 !px-2.5 text-xs">{v.infinitive}</button>
-            ))}
-          </div>
-        )}
-      </div>
+      <input
+        className="field"
+        style={{ marginTop: "var(--space-lg)", maxWidth: "26rem" }}
+        placeholder={`Search ${VERB_LIST.length} verbs — “salir”, “to leave”…`}
+        aria-label="Search verbs"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+      />
+      {results.length > 0 && (
+        <div className="flex flex-wrap gap-x-4 gap-y-1" style={{ marginTop: "var(--space-sm)", maxHeight: "9rem", overflow: "auto" }}>
+          {results.map((v) => (
+            <button key={v.infinitive} onClick={() => { setActive(v.infinitive); setQ(""); }}
+              title={v.english} className="link data" style={{ fontSize: "var(--text-sm)", cursor: "pointer" }}>
+              {v.infinitive}
+            </button>
+          ))}
+        </div>
+      )}
 
-      <div className="card-shell p-5">
-        <div className="flex flex-wrap items-center gap-3">
-          <div>
-            <div className="text-2xl font-bold flex items-center gap-2">
-              {verb.infinitive}
-              <SpeakButton text={verb.infinitive} />
-            </div>
-            <div className="muted text-sm">{verb.english}</div>
-          </div>
-          <div className="flex flex-wrap gap-1.5 ml-auto">
-            {verb.tags?.map((t) => <span key={t} className="chip">{t}</span>)}
-          </div>
+      {/* Entry head — the way a dictionary sets a headword. */}
+      <header style={{ marginTop: "var(--space-2xl)", borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-sm)" }}>
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h2 className="display" style={{ fontSize: "var(--text-3xl)" }}>{verb.infinitive}</h2>
+          <SpeakButton text={verb.infinitive} />
+          <span className="muted" style={{ fontSize: "var(--text-lg)" }}>{verb.english}</span>
         </div>
-        <div className="flex flex-wrap gap-4 mt-4 text-sm">
-          <div><span className="muted">gerundio</span> <strong className="ml-1.5">{conjugate(verb, "gerundio")[0]}</strong></div>
-          <div><span className="muted">participio</span> <strong className="ml-1.5">{conjugate(verb, "participio")[0]}</strong></div>
+        <div className="flex flex-wrap gap-x-6 gap-y-1" style={{ marginTop: "var(--space-sm)" }}>
+          <span className="tag">gerundio <span className="data" style={{ color: "var(--color-ink)" }}>{conjugate(verb, "gerundio")[0]}</span></span>
+          <span className="tag">participio <span className="data" style={{ color: "var(--color-ink)" }}>{conjugate(verb, "participio")[0]}</span></span>
+          {verb.tags?.map((t) => <span key={t} className="tag">{t}</span>)}
         </div>
-      </div>
+      </header>
 
       {MOODS.map((mood) => {
         const tenses = TENSES.filter((t) => t.mood === mood && !t.single);
         if (!tenses.length) return null;
         return (
-          <section key={mood}>
-            <h2 className="text-lg font-bold mb-2.5">{mood}</h2>
-            <div className="grid md:grid-cols-2 gap-3">
+          <section key={mood} style={{ marginTop: "var(--space-xl)" }}>
+            <h3 className="label" style={{ borderBottom: "var(--rule-hair) solid var(--color-rule-2)", paddingBottom: "var(--space-2xs)" }}>
+              {mood}
+            </h3>
+            <div
+              className="grid gap-x-10 gap-y-6"
+              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 17rem), 1fr))", marginTop: "var(--space-md)" }}
+            >
               {tenses.map((t) => (
-                <TenseCard key={t.key} verb={verb.infinitive} tense={t.key} name={t.name} english={t.english} />
+                <TenseTable key={t.key} verb={verb.infinitive} tense={t.key} name={t.name} english={t.english} />
               ))}
             </div>
           </section>
@@ -78,29 +86,40 @@ function Tables() {
   );
 }
 
-function TenseCard({ verb, tense, name, english }: { verb: string; tense: TenseKey; name: string; english: string }) {
+function TenseTable({ verb, tense, name, english }: { verb: string; tense: TenseKey; name: string; english: string }) {
   const forms = conjugate(verb, tense);
   return (
-    <div className="card-shell p-4">
-      <div className="flex items-baseline justify-between gap-2">
-        <div className="font-semibold">{name}</div>
-        <div className="text-xs muted">{english}</div>
+    <div style={{ minWidth: 0 }}>
+      {/* Fixed height keeps every table in the grid starting on the same line. */}
+      <div
+        className="flex items-baseline justify-between gap-3"
+        style={{
+          borderBottom: "var(--rule-hair) solid var(--color-rule-2)",
+          paddingBottom: "var(--space-3xs)",
+          minHeight: "2.6rem",
+          alignItems: "flex-end",
+        }}
+      >
+        <span className="display" style={{ fontSize: "var(--text-md)" }}>{name}</span>
+        <span className="tag" style={{ textAlign: "right", maxWidth: "55%" }}>{english}</span>
       </div>
-      <div className="mt-2.5 space-y-1 text-sm">
-        {PERSON_LABELS.map((p, i) => (
-          <div key={p} className="flex justify-between gap-3 py-0.5" style={{ borderBottom: i < 5 ? "1px solid var(--border)" : undefined }}>
-            <span className="muted">{p}</span>
-            <span className="font-medium text-right">{forms[i]}</span>
-          </div>
-        ))}
-      </div>
+      <table className="sheet" style={{ marginTop: "var(--space-2xs)" }}>
+        <tbody>
+          {PERSON_LABELS.map((p, i) => (
+            <tr key={p}>
+              <td className="muted" style={{ fontSize: "var(--text-xs)", width: "45%" }}>{p}</td>
+              <td className="data" style={{ textAlign: "right", fontSize: "var(--text-sm)" }}>{forms[i]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
 
 export default function TablesPage() {
   return (
-    <Suspense fallback={<div className="muted">Loading verbs…</div>}>
+    <Suspense fallback={<p className="muted">Loading verbs…</p>}>
       <Tables />
     </Suspense>
   );

@@ -10,20 +10,21 @@ import { gradeConjugation } from "@/lib/grade";
 import { shuffle } from "@/lib/srs";
 import { recordDrill } from "@/lib/storage";
 import { speak } from "@/lib/tts";
-import { AccentKeys, ProgressBar, Toggle, useLocalState } from "@/components/ui";
+import { AccentKeys, ProgressBar, Toggle, Choice, useLocalState } from "@/components/ui";
 
 interface Prompt { verb: VerbEntry; tense: TenseKey; person: number; answer: string }
 
 const DEFAULT_TENSES: TenseKey[] = ["presente", "preterito", "imperfecto"];
+const MOODS = ["Indicativo", "Subjuntivo", "Imperativo", "Formas impersonales"] as const;
 
 function ConjugateInner() {
-  const [group, setGroup] = useLocalState<string>("verbo.drill.group", "top");
-  const [tenses, setTenses] = useLocalState<TenseKey[]>("verbo.drill.tenses", DEFAULT_TENSES);
-  const [people, setPeople] = useLocalState<number[]>("verbo.drill.people", [0, 1, 2, 3, 5]);
-  const [length, setLength] = useLocalState<number>("verbo.drill.length", 20);
-  const [customVerbs, setCustomVerbs] = useLocalState<string[]>("verbo.drill.custom", []);
+  const [group, setGroup] = useLocalState<string>("sa.drill.group", "top");
+  const [tenses, setTenses] = useLocalState<TenseKey[]>("sa.drill.tenses", DEFAULT_TENSES);
+  const [people, setPeople] = useLocalState<number[]>("sa.drill.people", [0, 1, 2, 3, 5]);
+  const [length, setLength] = useLocalState<number>("sa.drill.length", 20);
+  const [customVerbs, setCustomVerbs] = useLocalState<string[]>("sa.drill.custom", []);
   const [useCustom, setUseCustom] = useState(false);
-  const [showEnglish, setShowEnglish] = useLocalState<boolean>("verbo.drill.english", true);
+  const [showEnglish, setShowEnglish] = useLocalState<boolean>("sa.drill.english", true);
 
   const [prompts, setPrompts] = useState<Prompt[] | null>(null);
   const [idx, setIdx] = useState(0);
@@ -48,8 +49,7 @@ function ConjugateInner() {
       setUseCustom(false);
     }
     if (t) {
-      const list = t.split(",").map((x) => x.trim()) as TenseKey[];
-      const valid = list.filter((x) => TENSE_BY_KEY[x]);
+      const valid = (t.split(",").map((x) => x.trim()) as TenseKey[]).filter((x) => TENSE_BY_KEY[x]);
       if (valid.length) setTenses(valid);
     }
     if (n && Number(n) > 0) setLength(Math.min(60, Math.max(5, Number(n))));
@@ -108,7 +108,7 @@ function ConjugateInner() {
     if (res.pass) setRight((r) => r + 1);
     else setMissed((m) => [...m, {
       prompt: `${cur.verb.infinitive} · ${TENSE_BY_KEY[cur.tense].name} · ${PERSON_LABELS[cur.person]}`,
-      yours: input || "(blank)", correct: cur.answer,
+      yours: input || "—", correct: cur.answer,
     }]);
     setFb({ ok: res.pass, message: res.message, answer: cur.answer });
     speak(cur.answer);
@@ -116,116 +116,104 @@ function ConjugateInner() {
 
   function next() { setFb(null); setInput(""); setIdx((n) => n + 1); }
 
-  /* ---------------- setup ---------------- */
+  /* ------------------------- setup ------------------------- */
   if (!prompts) {
     return (
-      <div className="max-w-3xl mx-auto space-y-5">
-        <div>
-          <h1 className="text-2xl font-bold">Conjugation drill</h1>
-          <p className="muted text-sm mt-1">
-            {VERB_LIST.length} verbs across {TENSES.length} tenses. Pick what your test covers and drill
-            only that.
-          </p>
+      <div>
+        <p className="label">Conjugación</p>
+        <h1 className="display" style={{ fontSize: "var(--text-2xl)", marginTop: "var(--space-xs)" }}>
+          Preparar un drill
+        </h1>
+        <p className="muted measure" style={{ marginTop: "var(--space-sm)" }}>
+          {VERB_LIST.length} verbs across {TENSES.length} tenses. Set it to exactly what your test
+          covers and drill only that.
+        </p>
+
+        <Field label="Verbos" note={
+          useCustom
+            ? `${customVerbs.length} selected`
+            : `${groupVerbs.length} verbs — ${VERB_GROUPS.find((g) => g.id === group)?.description}`
+        }>
+          <div className="flex flex-wrap gap-2">
+            {VERB_GROUPS.map((g) => (
+              <Choice key={g.id} title={g.description} on={!useCustom && group === g.id}
+                onClick={() => { setGroup(g.id); setUseCustom(false); }}>
+                {g.name}
+              </Choice>
+            ))}
+            <Choice on={useCustom} onClick={() => setUseCustom(true)}>
+              Elegir yo{customVerbs.length ? ` (${customVerbs.length})` : ""}
+            </Choice>
+          </div>
+          {useCustom && <VerbPicker selected={customVerbs} onChange={setCustomVerbs} />}
+        </Field>
+
+        <Field label="Tiempos">
+          {MOODS.map((mood) => (
+            <div key={mood} style={{ marginBottom: "var(--space-sm)" }}>
+              <p className="tag" style={{ marginBottom: "var(--space-2xs)" }}>{mood}</p>
+              <div className="flex flex-wrap gap-2">
+                {TENSES.filter((t) => t.mood === mood).map((t) => (
+                  <Choice key={t.key} title={`${t.english} — e.g. ${t.example}`} on={tenses.includes(t.key)}
+                    onClick={() => setTenses(tenses.includes(t.key) ? tenses.filter((x) => x !== t.key) : [...tenses, t.key])}>
+                    {t.name}
+                  </Choice>
+                ))}
+              </div>
+            </div>
+          ))}
+          <div className="flex flex-wrap gap-4" style={{ marginTop: "var(--space-xs)" }}>
+            <button className="link label" onClick={() => setTenses(TENSES.map((t) => t.key))}>Select all</button>
+            <button className="link label" onClick={() => setTenses(DEFAULT_TENSES)}>Just the basics</button>
+            <button className="link label" onClick={() => setTenses([])}>Clear</button>
+          </div>
+        </Field>
+
+        <Field label="Sujetos">
+          <div className="flex flex-wrap gap-2">
+            {PERSON_LABELS.map((p, i) => (
+              <Choice key={p} on={people.includes(i)}
+                onClick={() => setPeople(people.includes(i) ? people.filter((x) => x !== i) : [...people, i].sort())}>
+                {p}
+              </Choice>
+            ))}
+          </div>
+        </Field>
+
+        <Field label="Preguntas" note={String(length)}>
+          <input type="range" min={5} max={60} value={length} aria-label="Number of questions"
+            style={{ width: "100%", maxWidth: "26rem", accentColor: "var(--color-accent)" }}
+            onChange={(e) => setLength(Number(e.target.value))} />
+        </Field>
+
+        <div style={{ borderTop: "var(--rule-hair) solid var(--color-rule)", paddingTop: "var(--space-md)" }}>
+          <Toggle checked={showEnglish} onChange={setShowEnglish} label="Show the English meaning in the prompt" />
         </div>
 
-        <div className="card-shell p-5 space-y-4">
-          <div>
-            <div className="text-sm font-semibold mb-2">Which verbs</div>
-            <div className="flex flex-wrap gap-1.5">
-              {VERB_GROUPS.map((g) => (
-                <button key={g.id} title={g.description}
-                  onClick={() => { setGroup(g.id); setUseCustom(false); }}
-                  className="btn btn-ghost !py-1.5 !px-3 text-xs"
-                  style={!useCustom && group === g.id ? { background: "var(--accent)", color: "#fff" } : undefined}>
-                  {g.name}
-                </button>
-              ))}
-              <button onClick={() => setUseCustom(true)} className="btn btn-ghost !py-1.5 !px-3 text-xs"
-                style={useCustom ? { background: "var(--accent)", color: "#fff" } : undefined}>
-                Choose my own{customVerbs.length ? ` (${customVerbs.length})` : ""}
-              </button>
-            </div>
-            <p className="text-xs muted mt-2">
-              {useCustom
-                ? `${customVerbs.length} verb${customVerbs.length === 1 ? "" : "s"} selected.`
-                : `${groupVerbs.length} verbs — ${VERB_GROUPS.find((g) => g.id === group)?.description}`}
-            </p>
-            {useCustom && <VerbPicker selected={customVerbs} onChange={setCustomVerbs} />}
-          </div>
-
-          <div>
-            <div className="text-sm font-semibold mb-2">Tenses</div>
-            {["Indicativo", "Subjuntivo", "Imperativo", "Formas impersonales"].map((mood) => (
-              <div key={mood} className="mb-2.5">
-                <div className="text-xs muted mb-1.5">{mood}</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {TENSES.filter((t) => t.mood === mood).map((t) => {
-                    const on = tenses.includes(t.key);
-                    return (
-                      <button key={t.key} title={`${t.english} — e.g. ${t.example}`}
-                        onClick={() => setTenses(on ? tenses.filter((x) => x !== t.key) : [...tenses, t.key])}
-                        className="btn btn-ghost !py-1.5 !px-3 text-xs"
-                        style={on ? { background: "var(--accent)", color: "#fff" } : undefined}>
-                        {t.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-            <div className="flex gap-2 mt-1">
-              <button className="text-xs accent font-semibold" onClick={() => setTenses(TENSES.map((t) => t.key))}>Select all</button>
-              <button className="text-xs muted font-semibold" onClick={() => setTenses([])}>Clear</button>
-              <button className="text-xs accent font-semibold" onClick={() => setTenses(DEFAULT_TENSES)}>Just the basics</button>
-            </div>
-          </div>
-
-          <div>
-            <div className="text-sm font-semibold mb-2">Subjects</div>
-            <div className="flex flex-wrap gap-1.5">
-              {PERSON_LABELS.map((p, i) => {
-                const on = people.includes(i);
-                return (
-                  <button key={p} onClick={() => setPeople(on ? people.filter((x) => x !== i) : [...people, i].sort())}
-                    className="btn btn-ghost !py-1.5 !px-3 text-xs"
-                    style={on ? { background: "var(--accent)", color: "#fff" } : undefined}>
-                    {p}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-sm font-semibold flex justify-between"><span>Questions</span><span className="muted">{length}</span></label>
-            <input type="range" min={5} max={60} value={length} className="w-full mt-2 accent-[var(--accent)]"
-              onChange={(e) => setLength(Number(e.target.value))} />
-          </div>
-
-          <Toggle checked={showEnglish} onChange={setShowEnglish} label="Show the English meaning in the prompt" />
-
-          <button className="btn btn-primary w-full" onClick={build} disabled={!tenses.length}>
+        <div className="flex flex-wrap items-center gap-4" style={{ marginTop: "var(--space-xl)" }}>
+          <button className="btn btn-primary" onClick={build} disabled={!tenses.length}>
             {tenses.length ? `Start ${length}-question drill` : "Pick at least one tense"}
           </button>
+          <Link href="/tables" className="link label">Look something up instead →</Link>
         </div>
-
-        <p className="text-sm muted">
-          Want to look something up instead? <Link href="/tables" className="accent font-semibold">Browse full verb tables →</Link>
-        </p>
       </div>
     );
   }
 
-  /* ---------------- results ---------------- */
+  /* ------------------------- results ------------------------- */
   if (finished) {
     const pct = Math.round((right / prompts.length) * 100);
-    const tone = pct >= 80 ? "var(--good)" : pct >= 70 ? "var(--warn)" : "var(--bad)";
+    const tone = pct >= 80 ? "var(--color-good)" : pct >= 70 ? "var(--color-ink)" : "var(--color-accent)";
     return (
-      <div className="max-w-3xl mx-auto">
-        <div className="card-shell p-8 text-center">
-          <div className="text-5xl font-extrabold" style={{ color: tone }}>{pct}%</div>
-          <p className="muted mt-2">{right} of {prompts.length} correct in {Math.round((Date.now() - startedAt) / 1000)}s</p>
-          <div className="flex flex-wrap gap-2 justify-center mt-5">
+      <div>
+        <div style={{ borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-md)" }}>
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
+            <span className="data tnum" style={{ fontSize: "var(--text-display)", lineHeight: 1, color: tone }}>{pct}</span>
+            <span className="tag" style={{ marginLeft: "auto" }}>
+              {right}/{prompts.length} correct · {Math.round((Date.now() - startedAt) / 1000)}s
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-3" style={{ marginTop: "var(--space-lg)" }}>
             {missed.length > 0 && (
               <button className="btn btn-primary" onClick={() => {
                 const redo = prompts.filter((p) => missed.some((m) => m.correct === p.answer));
@@ -233,96 +221,129 @@ function ConjugateInner() {
               }}>Redo the {missed.length} I missed</button>
             )}
             <button className="btn btn-outline" onClick={build}>New drill, same settings</button>
-            <button className="btn btn-ghost" onClick={() => setPrompts(null)}>Change settings</button>
+            <button className="link label self-center" onClick={() => setPrompts(null)}>Change settings →</button>
           </div>
         </div>
 
         {missed.length > 0 && (
-          <div className="card-shell p-5 mt-4">
-            <h3 className="font-bold mb-3">What you missed</h3>
-            <div className="space-y-2">
-              {missed.map((m, i) => (
-                <div key={i} className="text-sm rounded-lg p-3" style={{ background: "var(--surface-2)" }}>
-                  <div className="font-medium">{m.prompt}</div>
-                  <div style={{ color: "var(--bad)" }}>You wrote: {m.yours}</div>
-                  <div style={{ color: "var(--good)" }}>Correct: {m.correct}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <section style={{ marginTop: "var(--space-2xl)" }}>
+            <h2 className="display" style={{ fontSize: "var(--text-xl)", borderBottom: "var(--rule-thick) solid var(--color-ink)", paddingBottom: "var(--space-xs)" }}>
+              Errores
+            </h2>
+            <table className="sheet" style={{ marginTop: "var(--space-xs)" }}>
+              <thead>
+                <tr><th>Prompt</th><th>Tu respuesta</th><th style={{ textAlign: "right" }}>Correcta</th></tr>
+              </thead>
+              <tbody>
+                {missed.map((m, i) => (
+                  <tr key={i}>
+                    <td style={{ fontSize: "var(--text-sm)" }}>{m.prompt}</td>
+                    <td className="data" style={{ fontSize: "var(--text-sm)", color: "var(--color-accent)" }}>{m.yours}</td>
+                    <td className="data" style={{ fontSize: "var(--text-sm)", textAlign: "right", color: "var(--color-good)" }}>{m.correct}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>
         )}
       </div>
     );
   }
 
-  /* ---------------- drilling ---------------- */
+  /* ------------------------- drilling ------------------------- */
   const meta = TENSE_BY_KEY[cur!.tense];
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="flex items-center gap-3 text-sm mb-4">
-        <button className="btn btn-ghost !py-1 !px-3 text-xs" onClick={() => setPrompts(null)}>← Settings</button>
-        <span className="muted">{idx + 1} / {prompts.length}</span>
-        <div className="flex-1"><ProgressBar value={(idx / prompts.length) * 100} /></div>
-        <span className="chip" style={{ color: "var(--good)" }}>{right}</span>
+    <div style={{ maxWidth: "44rem" }}>
+      <div className="flex items-center gap-4" style={{ borderBottom: "var(--rule-hair) solid var(--color-rule)", paddingBottom: "var(--space-xs)" }}>
+        <button className="label" onClick={() => setPrompts(null)}>← Ajustes</button>
+        <span className="data tnum tag">{idx + 1}/{prompts.length}</span>
+        <span className="flex-1"><ProgressBar value={(idx / prompts.length) * 100} /></span>
+        <span className="data tnum tag" style={{ color: "var(--color-good)" }}>{right}</span>
       </div>
 
-      <div className="card-shell p-6">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="chip">{meta.name}</span>
-          <span className="chip">{meta.english}</span>
-          {cur!.verb.tags?.filter((t) => t !== "top").map((t) => <span key={t} className="chip">{t}</span>)}
-        </div>
+      {/* The prompt is the largest thing on the page. */}
+      <div style={{ marginTop: "var(--space-2xl)" }}>
+        <p className="label">
+          {meta.name} · {meta.single ? "forma única" : PERSON_LABELS[cur!.person]}
+        </p>
+        <h1 className="display" style={{ fontSize: "var(--text-3xl)", marginTop: "var(--space-xs)" }}>
+          {cur!.verb.infinitive}
+        </h1>
+        {showEnglish && <p className="muted" style={{ marginTop: "var(--space-3xs)" }}>{cur!.verb.english}</p>}
+      </div>
 
-        <div className="mt-4">
-          <div className="text-3xl font-bold">{cur!.verb.infinitive}</div>
-          {showEnglish && <div className="muted text-sm mt-0.5">{cur!.verb.english}</div>}
-        </div>
-
-        <div className="mt-5 flex items-baseline gap-3 flex-wrap">
-          <span className="text-xl font-semibold" style={{ color: "var(--accent)" }}>
-            {meta.single ? meta.name.toLowerCase() : PERSON_LABELS[cur!.person]}
-          </span>
-          <span className="muted">→</span>
-        </div>
-
-        <form className="mt-3 space-y-3" onSubmit={(e) => { e.preventDefault(); fb ? next() : check(); }}>
-          <input ref={inputRef} className="input text-lg" placeholder="Type the conjugation…"
-            value={input} disabled={!!fb} autoComplete="off" autoCapitalize="off" spellCheck={false}
-            onChange={(e) => setInput(e.target.value)} />
-          {!fb && <AccentKeys onInsert={(ch) => { setInput((v) => v + ch); inputRef.current?.focus(); }} />}
-          {!fb && <button className="btn btn-primary" type="submit">Check</button>}
-        </form>
-
-        {fb && (
-          <div className={`mt-5 rounded-xl p-4 pop ${fb.ok ? "" : "shake"}`}
-            style={{ background: "var(--surface-2)", borderLeft: `3px solid ${fb.ok ? "var(--good)" : "var(--bad)"}` }}>
-            <div className="font-semibold" style={{ color: fb.ok ? "var(--good)" : "var(--bad)" }}>
-              {fb.ok ? "Correct" : "Not quite"}
+      <form style={{ marginTop: "var(--space-xl)" }} onSubmit={(e) => { e.preventDefault(); fb ? next() : check(); }}>
+        <input ref={inputRef} className="field data"
+          style={{ fontSize: "var(--text-xl)" }}
+          placeholder="…"
+          aria-label={`Conjugate ${cur!.verb.infinitive} in ${meta.name}`}
+          value={input} disabled={!!fb} autoComplete="off" autoCapitalize="off" spellCheck={false}
+          onChange={(e) => setInput(e.target.value)} />
+        {!fb && (
+          <>
+            <div style={{ marginTop: "var(--space-md)" }}>
+              <AccentKeys onInsert={(ch) => { setInput((v) => v + ch); inputRef.current?.focus(); }} />
             </div>
-            <div className="text-sm mt-1">{fb.message ?? <>Answer: <strong>{fb.answer}</strong></>}</div>
-
-            {!fb.ok && (
-              <div className="mt-3">
-                <div className="text-xs muted mb-1.5">Full {meta.name.toLowerCase()} of {cur!.verb.infinitive}</div>
-                <div className="grid sm:grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                  {conjugate(cur!.verb, cur!.tense).map((f, i) => (
-                    <div key={i} className="flex justify-between gap-2" style={{ opacity: i === cur!.person ? 1 : 0.65 }}>
-                      <span className="muted">{PERSON_LABELS[i]}</span>
-                      <span className="font-medium" style={i === cur!.person ? { color: "var(--good)" } : undefined}>{f}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-2 mt-3">
-              <button className="btn btn-primary" onClick={next} autoFocus>Continue →</button>
-              <Link href={`/tables?verb=${encodeURIComponent(cur!.verb.infinitive)}`} className="btn btn-ghost text-sm">See every tense</Link>
-            </div>
-          </div>
+            <button className="btn btn-primary" type="submit" style={{ marginTop: "var(--space-lg)" }}>Check</button>
+          </>
         )}
-      </div>
+      </form>
+
+      {fb && (
+        <div style={{ marginTop: "var(--space-lg)", borderTop: "var(--rule-thick) solid", borderColor: fb.ok ? "var(--color-good)" : "var(--color-accent)", paddingTop: "var(--space-sm)" }}>
+          <p className="flex items-baseline gap-2">
+            <span className="data" style={{ color: fb.ok ? "var(--color-good)" : "var(--color-accent)" }} aria-hidden="true">
+              {fb.ok ? "✓" : "✗"}
+            </span>
+            <span className="label" style={{ color: fb.ok ? "var(--color-good)" : "var(--color-accent)" }}>
+              {fb.ok ? "Correcto" : "Incorrecto"}
+            </span>
+            {!fb.ok && <span className="data" style={{ fontSize: "var(--text-lg)" }}>{fb.answer}</span>}
+          </p>
+          {fb.message && <p className="muted" style={{ fontSize: "var(--text-sm)", marginTop: "var(--space-3xs)" }}>{fb.message}</p>}
+
+          {!fb.ok && (
+            <table className="sheet" style={{ marginTop: "var(--space-md)", maxWidth: "26rem" }}>
+              <thead>
+                <tr><th colSpan={2}>{meta.name} · {cur!.verb.infinitive}</th></tr>
+              </thead>
+              <tbody>
+                {conjugate(cur!.verb, cur!.tense).map((f, i) => (
+                  <tr key={i}>
+                    <td className="muted" style={{ fontSize: "var(--text-xs)" }}>{PERSON_LABELS[i]}</td>
+                    <td className="data" style={{
+                      textAlign: "right", fontSize: "var(--text-sm)",
+                      color: i === cur!.person ? "var(--color-good)" : "var(--color-ink-2)",
+                      fontWeight: i === cur!.person ? 500 : 400,
+                    }}>{f}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          <div className="flex flex-wrap gap-4 items-center" style={{ marginTop: "var(--space-lg)" }}>
+            <button className="btn btn-primary" onClick={next} autoFocus>Continue</button>
+            <Link href={`/tables?verb=${encodeURIComponent(cur!.verb.infinitive)}`} className="link label">
+              Every tense →
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+/** A labelled block in the setup sheet. Label above, control beneath. */
+function Field({ label, note, children }: { label: string; note?: string; children: React.ReactNode }) {
+  return (
+    <section style={{ marginTop: "var(--space-xl)", borderTop: "var(--rule-hair) solid var(--color-rule)", paddingTop: "var(--space-md)" }}>
+      <div className="flex flex-wrap items-baseline gap-x-3">
+        <h2 className="label">{label}</h2>
+        {note && <span className="tag">{note}</span>}
+      </div>
+      <div style={{ marginTop: "var(--space-sm)" }}>{children}</div>
+    </section>
   );
 }
 
@@ -332,19 +353,23 @@ function VerbPicker({ selected, onChange }: { selected: string[]; onChange: (v: 
     (v) => v.infinitive.includes(q.toLowerCase()) || v.english.toLowerCase().includes(q.toLowerCase()),
   );
   return (
-    <div className="mt-3 rounded-xl p-3" style={{ background: "var(--surface-2)" }}>
-      <div className="flex gap-2">
-        <input className="input !py-1.5 text-sm" placeholder="Search verbs…" value={q} onChange={(e) => setQ(e.target.value)} />
-        {selected.length > 0 && <button className="btn btn-ghost !py-1.5 !px-3 text-xs" onClick={() => onChange([])}>Clear</button>}
+    <div style={{ marginTop: "var(--space-md)", borderLeft: "var(--rule-thick) solid var(--color-rule)", paddingLeft: "var(--space-md)" }}>
+      <div className="flex flex-wrap gap-3 items-baseline">
+        <input className="field" style={{ maxWidth: "18rem", fontSize: "var(--text-sm)" }}
+          placeholder="Search verbs…" aria-label="Search verbs" value={q} onChange={(e) => setQ(e.target.value)} />
+        {selected.length > 0 && <button className="link label" onClick={() => onChange([])}>Clear</button>}
       </div>
-      <div className="flex flex-wrap gap-1.5 mt-2.5 max-h-56 overflow-auto">
+      <div className="flex flex-wrap gap-x-4 gap-y-1" style={{ marginTop: "var(--space-sm)", maxHeight: "12rem", overflow: "auto" }}>
         {list.map((v) => {
           const on = selected.includes(v.infinitive);
           return (
-            <button key={v.infinitive} title={v.english}
+            <button key={v.infinitive} title={v.english} aria-pressed={on}
               onClick={() => onChange(on ? selected.filter((x) => x !== v.infinitive) : [...selected, v.infinitive])}
-              className="btn btn-ghost !py-1 !px-2.5 text-xs"
-              style={on ? { background: "var(--accent)", color: "#fff" } : undefined}>
+              className="data" style={{
+                fontSize: "var(--text-sm)", cursor: "pointer", minHeight: 32,
+                color: on ? "var(--color-accent)" : "var(--color-ink-2)",
+                borderBottom: `var(--rule-hair) solid ${on ? "var(--color-accent)" : "transparent"}`,
+              }}>
               {v.infinitive}
             </button>
           );
@@ -356,7 +381,7 @@ function VerbPicker({ selected, onChange }: { selected: string[]; onChange: (v: 
 
 export default function ConjugatePage() {
   return (
-    <Suspense fallback={<div className="card-shell p-10 text-center muted">Loading the drill…</div>}>
+    <Suspense fallback={<p className="muted">Loading the drill…</p>}>
       <ConjugateInner />
     </Suspense>
   );

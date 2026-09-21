@@ -3,36 +3,32 @@
 import React, { useEffect, useState } from "react";
 import { speak } from "@/lib/tts";
 
-export function ProgressBar({ value, tone = "accent" }: { value: number; tone?: "accent" | "good" | "warn" }) {
-  const color = tone === "good" ? "var(--good)" : tone === "warn" ? "var(--warn)" : "var(--accent)";
+/**
+ * A mastery bar, set as a ruled measure rather than a rounded pill.
+ * The accent fills only the learned portion, so it stays well under 5%.
+ */
+export function ProgressBar({ value, tone = "accent" }: { value: number; tone?: "accent" | "good" }) {
+  const color = tone === "good" ? "var(--color-good)" : "var(--color-accent)";
+  const pct = Math.max(0, Math.min(100, value));
   return (
-    <div className="h-2 w-full rounded-full overflow-hidden" style={{ background: "var(--surface-2)" }}>
-      <div
-        className="h-full rounded-full transition-all duration-500"
-        style={{ width: `${Math.max(0, Math.min(100, value))}%`, background: color }}
-      />
+    <div
+      style={{ height: 3, background: "var(--color-rule)", width: "100%" }}
+      role="presentation"
+    >
+      <div style={{ height: "100%", width: `${pct}%`, background: color }} />
     </div>
   );
 }
 
-export function Ring({ value, size = 64, label }: { value: number; size?: number; label?: string }) {
-  const r = (size - 8) / 2;
-  const c = 2 * Math.PI * r;
+/** A percentage set as data, with a rule beneath it. Replaces the donut ring. */
+export function Figure({ value, caption }: { value: number; caption?: string }) {
   return (
-    <div className="relative grid place-items-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--surface-2)" strokeWidth="6" />
-        <circle
-          cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--accent)" strokeWidth="6"
-          strokeLinecap="round" strokeDasharray={c}
-          strokeDashoffset={c - (c * Math.max(0, Math.min(100, value))) / 100}
-          style={{ transition: "stroke-dashoffset .6s ease" }}
-        />
-      </svg>
-      <div className="absolute text-center leading-none">
-        <div className="text-sm font-bold">{Math.round(value)}%</div>
-        {label && <div className="text-[9px] muted mt-0.5">{label}</div>}
+    <div className="text-right shrink-0">
+      <div className="data tnum" style={{ fontSize: "var(--text-lg)", lineHeight: 1, color: "var(--color-ink)" }}>
+        {Math.round(value)}
+        <span style={{ fontSize: "var(--text-xs)", color: "var(--color-muted)" }}>%</span>
       </div>
+      {caption && <div className="label" style={{ marginTop: "var(--space-3xs)" }}>{caption}</div>}
     </div>
   );
 }
@@ -42,14 +38,14 @@ export function SpeakButton({ text, className = "" }: { text: string; className?
     <button
       type="button"
       aria-label={`Listen to ${text}`}
-      title="Listen (S)"
+      title="Listen"
       onClick={(e) => { e.stopPropagation(); speak(text); }}
-      className={`btn btn-ghost !p-2 !rounded-lg ${className}`}
+      className={`btn btn-quiet ${className}`}
+      style={{ minHeight: 36, padding: "var(--space-2xs) var(--space-xs)" }}
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
         <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-        <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
       </svg>
     </button>
   );
@@ -57,16 +53,25 @@ export function SpeakButton({ text, className = "" }: { text: string; className?
 
 const ACCENTS = ["á", "é", "í", "ó", "ú", "ñ", "ü", "¿", "¡"];
 
-/** Click-to-insert accent row, for people typing on a US keyboard. */
+/** Click-to-insert accent row, for a US keyboard. */
 export function AccentKeys({ onInsert }: { onInsert: (ch: string) => void }) {
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap gap-1">
       {ACCENTS.map((a) => (
         <button
           key={a}
           type="button"
+          aria-label={`Insert ${a}`}
           onMouseDown={(e) => { e.preventDefault(); onInsert(a); }}
-          className="btn btn-ghost !px-3 !py-1 !text-sm !rounded-lg font-mono"
+          className="data"
+          style={{
+            minWidth: 36, minHeight: 36,
+            border: "var(--rule-hair) solid var(--color-rule)",
+            background: "var(--color-paper)",
+            color: "var(--color-ink-2)",
+            fontSize: "var(--text-sm)",
+            cursor: "pointer",
+          }}
         >
           {a}
         </button>
@@ -75,22 +80,23 @@ export function AccentKeys({ onInsert }: { onInsert: (ch: string) => void }) {
   );
 }
 
+/** A labelled figure in a ruled strip. */
 export function Stat({ label, value, sub }: { label: string; value: React.ReactNode; sub?: string }) {
   return (
-    <div className="card-shell p-4">
-      <div className="text-xs muted font-medium uppercase tracking-wide">{label}</div>
-      <div className="text-2xl font-bold mt-1">{value}</div>
-      {sub && <div className="text-xs muted mt-0.5">{sub}</div>}
+    <div style={{ borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-xs)" }}>
+      <div className="label">{label}</div>
+      <div className="data tnum" style={{ fontSize: "var(--text-xl)", lineHeight: 1.1, marginTop: "var(--space-2xs)" }}>{value}</div>
+      {sub && <div className="muted" style={{ fontSize: "var(--text-xs)", marginTop: "var(--space-3xs)" }}>{sub}</div>}
     </div>
   );
 }
 
 export function Empty({ title, body, action }: { title: string; body: string; action?: React.ReactNode }) {
   return (
-    <div className="card-shell p-10 text-center">
-      <div className="text-lg font-semibold">{title}</div>
-      <p className="muted mt-1.5 text-sm max-w-md mx-auto">{body}</p>
-      {action && <div className="mt-5">{action}</div>}
+    <div style={{ borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-md)" }}>
+      <h2 className="display" style={{ fontSize: "var(--text-xl)" }}>{title}</h2>
+      <p className="muted measure" style={{ marginTop: "var(--space-xs)" }}>{body}</p>
+      {action && <div style={{ marginTop: "var(--space-md)" }}>{action}</div>}
     </div>
   );
 }
@@ -100,19 +106,49 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="flex items-center gap-2.5 text-sm"
+      className="flex items-baseline gap-2 text-left"
+      style={{ fontSize: "var(--text-sm)", color: "var(--color-ink)", minHeight: 36 }}
       aria-pressed={checked}
     >
       <span
-        className="w-9 h-5 rounded-full relative transition-colors shrink-0"
-        style={{ background: checked ? "var(--accent)" : "var(--surface-2)", border: "1px solid var(--border)" }}
+        aria-hidden="true"
+        className="data shrink-0 grid place-items-center"
+        style={{
+          width: 16, height: 16,
+          border: `var(--rule-hair) solid ${checked ? "var(--color-accent)" : "var(--color-rule-2)"}`,
+          background: checked ? "var(--color-accent)" : "transparent",
+          color: "var(--color-accent-ink)",
+          fontSize: 11, lineHeight: 1,
+          transform: "translateY(2px)",
+        }}
       >
-        <span
-          className="absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all"
-          style={{ left: checked ? "1.125rem" : "0.125rem" }}
-        />
+        {checked ? "×" : ""}
       </span>
       <span>{label}</span>
+    </button>
+  );
+}
+
+/** A selectable option in a ruled option row — replaces the pill-chip filter. */
+export function Choice({ on, children, ...rest }: React.ButtonHTMLAttributes<HTMLButtonElement> & { on: boolean }) {
+  return (
+    <button
+      type="button"
+      aria-pressed={on}
+      {...rest}
+      className="data"
+      style={{
+        fontSize: "var(--text-xs)",
+        padding: "var(--space-2xs) var(--space-sm)",
+        minHeight: 36,
+        cursor: "pointer",
+        background: on ? "var(--color-ink)" : "transparent",
+        color: on ? "var(--color-paper)" : "var(--color-ink-2)",
+        border: `var(--rule-hair) solid ${on ? "var(--color-ink)" : "var(--color-rule-2)"}`,
+        ...rest.style,
+      }}
+    >
+      {children}
     </button>
   );
 }

@@ -7,7 +7,15 @@ import { syncCurriculum } from "@/lib/curriculum";
 import { statsFor } from "@/lib/srs";
 import { exportAll, importAll } from "@/lib/storage";
 import { CONJUGATION_DECKS, deckHref } from "@/lib/decks";
-import { Ring, ProgressBar } from "@/components/ui";
+import { ProgressBar } from "@/components/ui";
+
+const MODES = [
+  ["flashcards", "Cards"],
+  ["learn", "Learn"],
+  ["write", "Write"],
+  ["match", "Match"],
+  ["test", "Test"],
+] as const;
 
 export default function SetsPage() {
   const data = useAppData();
@@ -27,7 +35,7 @@ export default function SetsPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `sa-spanish4-progress-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `sa-espanol4-progreso-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
@@ -37,80 +45,109 @@ export default function SetsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-2xl font-bold">Vocabulary</h1>
+    <div>
+      <p className="label">Vocabulario</p>
+      <div className="flex flex-wrap items-end gap-4" style={{ marginTop: "var(--space-xs)" }}>
+        <h1 className="display" style={{ fontSize: "var(--text-2xl)" }}>Listas de la clase</h1>
         <input
-          className="input !w-64 ml-auto"
-          placeholder="Search sets and terms…"
+          className="field ml-auto"
+          style={{ maxWidth: "18rem", fontSize: "var(--text-sm)" }}
+          placeholder="Search terms…"
+          aria-label="Search sets and terms"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
       </div>
 
-      {!data.sets.length ? (
-        <div className="card-shell p-8 text-center muted text-sm">Loading your sets…</div>
-      ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {sets.map((s) => {
+      <div style={{ marginTop: "var(--space-xl)" }}>
+        {!data.sets.length ? (
+          <p className="muted">Loading…</p>
+        ) : (
+          sets.map((s, i) => {
             const st = statsFor(s);
             return (
-              <div key={s.id} className="card-shell p-4 flex flex-col relative overflow-hidden">
-                <div className="absolute top-0 left-0 right-0 h-1" style={{ background: s.color }} />
-                <Link href={`/sets/${s.id}`} className="flex items-start gap-3 flex-1 mt-1">
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold">{s.title}</div>
-                    {s.description && <div className="text-xs muted mt-0.5 line-clamp-3">{s.description}</div>}
-                    <div className="text-xs muted mt-1.5">
-                      {st.total} terms · {st.mastered} mastered{st.dueNow ? ` · ${st.dueNow} due` : ""}
-                    </div>
-                  </div>
-                  <Ring value={st.percent} size={52} />
-                </Link>
-                <div className="mt-3"><ProgressBar value={st.percent} tone={st.percent >= 80 ? "good" : "accent"} /></div>
-                <div className="flex flex-wrap gap-1.5 mt-3">
-                  <Link href={`/sets/${s.id}/learn`} className="btn btn-ghost !py-1 !px-2.5 text-xs">Learn</Link>
-                  <Link href={`/sets/${s.id}/flashcards`} className="btn btn-ghost !py-1 !px-2.5 text-xs">Cards</Link>
-                  <Link href={`/sets/${s.id}/write`} className="btn btn-ghost !py-1 !px-2.5 text-xs">Write</Link>
-                  <Link href={`/sets/${s.id}/match`} className="btn btn-ghost !py-1 !px-2.5 text-xs">Match</Link>
-                  <Link href={`/sets/${s.id}/test`} className="btn btn-ghost !py-1 !px-2.5 text-xs">Test</Link>
+              <article
+                key={s.id}
+                style={{
+                  borderTop: "var(--rule-hair) solid var(--color-rule)",
+                  paddingBlock: "var(--space-lg)",
+                }}
+              >
+                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                  <span className="data" style={{ color: "var(--color-muted)", fontSize: "var(--text-xs)" }}>
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <Link href={`/sets/${s.id}`} className="display" style={{ fontSize: "var(--text-xl)", textDecoration: "none", color: "var(--color-ink)" }}>
+                    {s.title}
+                  </Link>
+                  <span className="data tnum ml-auto" style={{ fontSize: "var(--text-sm)", color: "var(--color-ink-2)" }}>
+                    {st.mastered}<span className="muted">/{st.total}</span>
+                  </span>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
 
-      <section>
-        <h2 className="text-lg font-bold mb-3">Conjugation decks</h2>
-        <div className="grid sm:grid-cols-3 gap-3">
-          {CONJUGATION_DECKS.map((d) => (
-            <Link key={d.id} href={deckHref(d)} className="card-shell p-4 relative overflow-hidden hover:-translate-y-0.5 transition-transform">
-              <div className="absolute top-0 left-0 right-0 h-1" style={{ background: d.color }} />
-              <div className="font-semibold mt-1">{d.name}</div>
-              <div className="text-xs muted mt-1">{d.description}</div>
-            </Link>
-          ))}
-        </div>
+                {s.description && (
+                  <p className="muted measure" style={{ fontSize: "var(--text-sm)", marginTop: "var(--space-xs)" }}>
+                    {s.description}
+                  </p>
+                )}
+
+                <div style={{ marginTop: "var(--space-sm)", maxWidth: "32rem" }}>
+                  <ProgressBar value={st.percent} tone={st.percent >= 80 ? "good" : "accent"} />
+                </div>
+
+                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2" style={{ marginTop: "var(--space-sm)" }}>
+                  {MODES.map(([slug, label]) => (
+                    <Link key={slug} href={`/sets/${s.id}/${slug}`} className="link label" style={{ borderColor: "var(--color-rule-2)" }}>
+                      {label}
+                    </Link>
+                  ))}
+                  {st.dueNow > 0 && (
+                    <span className="tag ml-auto" style={{ color: "var(--color-accent)" }}>
+                      {st.dueNow} due
+                    </span>
+                  )}
+                </div>
+              </article>
+            );
+          })
+        )}
+      </div>
+
+      <section style={{ marginTop: "var(--space-2xl)" }}>
+        <h2 className="display" style={{ fontSize: "var(--text-xl)", borderBottom: "var(--rule-thick) solid var(--color-ink)", paddingBottom: "var(--space-xs)" }}>
+          Barajas de conjugación
+        </h2>
+        {CONJUGATION_DECKS.map((d, i) => (
+          <Link key={d.id} href={deckHref(d)} className="row" style={{ textDecoration: "none", color: "inherit" }}>
+            <span className="data shrink-0" style={{ color: "var(--color-muted)", fontSize: "var(--text-xs)", width: "2ch" }}>
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="flex-1 min-w-0">
+              <span className="display block" style={{ fontSize: "var(--text-lg)" }}>{d.name}</span>
+              <span className="muted block" style={{ fontSize: "var(--text-sm)", marginTop: "var(--space-3xs)" }}>{d.description}</span>
+            </span>
+            <span className="tag shrink-0" aria-hidden="true">→</span>
+          </Link>
+        ))}
       </section>
 
-      <div className="card-shell p-5">
-        <h2 className="font-bold">Where these come from</h2>
-        <p className="muted text-sm mt-1">
-          Sets are generated from the class packets in <code>data/curriculum.ts</code>. To add or
-          change one, hand Claude the packet and push the result — it appears here on the next
-          deploy. Your progress is matched by Spanish term, so updating a set never resets it.
+      <section style={{ marginTop: "var(--space-2xl)" }}>
+        <h2 className="label">Colofón</h2>
+        <p className="muted measure" style={{ fontSize: "var(--text-sm)", marginTop: "var(--space-xs)" }}>
+          Sets are generated from the class packets in <span className="data">data/curriculum.ts</span>.
+          To add or change one, hand Claude the packet and push the result. Progress is matched by
+          Spanish term, so updating a set never resets it.
         </p>
-        <div className="flex flex-wrap gap-2 mt-4 items-center">
-          <button onClick={download} className="btn btn-outline text-sm">Export my progress</button>
-          <label className="btn btn-outline text-sm cursor-pointer">
-            Restore from a backup
+        <div className="flex flex-wrap gap-3 items-center" style={{ marginTop: "var(--space-md)" }}>
+          <button onClick={download} className="btn btn-outline">Export my progress</button>
+          <label className="btn btn-outline cursor-pointer">
+            Restore a backup
             <input type="file" accept="application/json,.json" className="hidden"
               onChange={(e) => e.target.files?.[0] && onImportFile(e.target.files[0])} />
           </label>
-          {msg && <span className="text-sm muted">{msg}</span>}
+          {msg && <span className="muted" style={{ fontSize: "var(--text-sm)" }}>{msg}</span>}
         </div>
-      </div>
+      </section>
     </div>
   );
 }

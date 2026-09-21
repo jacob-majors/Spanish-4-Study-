@@ -28,12 +28,12 @@ export default function MockExamPage() {
     [exam?.id, sets.map((s) => s.id).join(","), attempt],
   );
 
-  if (!ready) return <div className="card-shell p-10 text-center muted">Building your mock exam…</div>;
+  if (!ready) return <p className="muted">Building your mock exam…</p>;
   if (!exam) {
     return (
-      <div className="card-shell p-10 text-center">
-        <div className="text-lg font-semibold">That test is not here</div>
-        <Link href="/exams" className="btn btn-primary mt-5">Back to tests</Link>
+      <div style={{ borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-md)" }}>
+        <h1 className="display" style={{ fontSize: "var(--text-xl)" }}>That test is not here</h1>
+        <Link href="/exams" className="btn btn-primary" style={{ marginTop: "var(--space-md)" }}>Back to tests</Link>
       </div>
     );
   }
@@ -71,11 +71,11 @@ export default function MockExamPage() {
 
   if (!questions.length) {
     return (
-      <div className="max-w-3xl mx-auto">
-        <Link href={`/exams/${exam.id}`} className="btn btn-ghost !py-1.5 !px-3 text-sm">← {exam.title}</Link>
-        <div className="card-shell p-10 text-center mt-4">
-          <div className="text-lg font-semibold">Nothing to build a mock exam from</div>
-          <p className="muted text-sm mt-1.5">
+      <div style={{ maxWidth: "46rem" }}>
+        <Link href={`/exams/${exam.id}`} className="label" style={{ textDecoration: "none" }}>← {exam.title}</Link>
+        <div style={{ marginTop: "var(--space-md)", borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-md)" }}>
+          <h1 className="display" style={{ fontSize: "var(--text-xl)" }}>Nothing to build a mock exam from</h1>
+          <p className="muted measure" style={{ marginTop: "var(--space-xs)" }}>
             This test has no vocabulary sets and no tenses attached to it yet.
           </p>
         </div>
@@ -84,11 +84,12 @@ export default function MockExamPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <Link href={`/exams/${exam.id}`} className="btn btn-ghost !py-1.5 !px-3 text-sm">← {exam.title}</Link>
-        <span className="chip">Mock exam</span>
-        <span className="chip">{questions.length} questions</span>
+    <div style={{ maxWidth: "46rem" }}>
+      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1"
+        style={{ borderBottom: "var(--rule-hair) solid var(--color-rule)", paddingBottom: "var(--space-xs)", marginBottom: "var(--space-lg)" }}>
+        <Link href={`/exams/${exam.id}`} className="label" style={{ textDecoration: "none" }}>← {exam.title}</Link>
+        <span className="label ml-auto" style={{ color: "var(--color-accent)" }}>Examen simulado</span>
+        <span className="tag">{questions.length} preguntas</span>
       </div>
       <TestRunner
         questions={questions}

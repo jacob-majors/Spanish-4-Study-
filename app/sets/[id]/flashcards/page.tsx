@@ -65,9 +65,9 @@ export default function FlashcardsPage() {
     return (
       <div>
         <SetHeader set={set} mode="Flashcards" />
-        <div className="card-shell p-10 text-center">
-          <p className="muted">{starredOnly ? "You have not starred any terms yet." : "This set has no terms."}</p>
-          {starredOnly && <button className="btn btn-primary mt-4" onClick={() => setStarredOnly(false)}>Show all terms</button>}
+        <div style={{ borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-md)" }}>
+          <p className="muted">{starredOnly ? "You have not marked any terms yet." : "This set has no terms."}</p>
+          {starredOnly && <button className="btn btn-primary" style={{ marginTop: "var(--space-md)" }} onClick={() => setStarredOnly(false)}>Show all terms</button>}
         </div>
       </div>
     );
@@ -78,67 +78,73 @@ export default function FlashcardsPage() {
   const done = i === order.length - 1;
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div style={{ maxWidth: "44rem" }}>
       <SetHeader set={set} mode="Flashcards" />
 
-      <div className="flex items-center gap-3 text-sm mb-3">
-        <span className="muted">{i + 1} / {order.length}</span>
-        <div className="flex-1"><ProgressBar value={((i + 1) / order.length) * 100} /></div>
-        <button className="btn btn-ghost !py-1 !px-2.5 text-xs" onClick={() => { setOrder(shuffle(order)); setI(0); setFlipped(false); }}>
+      <div className="flex items-center gap-4" style={{ marginBottom: "var(--space-lg)" }}>
+        <span className="data tnum tag">{i + 1}/{order.length}</span>
+        <span className="flex-1"><ProgressBar value={((i + 1) / order.length) * 100} /></span>
+        <button className="link label" onClick={() => { setOrder(shuffle(order)); setI(0); setFlipped(false); }}>
           Shuffle
         </button>
       </div>
 
-      <div className="flip-scene h-72 md:h-96 cursor-pointer select-none" onClick={() => setFlipped(!flipped)}>
+      <div className="flip-scene cursor-pointer select-none"
+        style={{ height: "min(58vh, 24rem)" }}
+        onClick={() => setFlipped(!flipped)}>
         <div className={`flip-inner ${flipped ? "flipped" : ""}`}>
-          <div className="flip-face card-shell p-8">
+          <div className="flip-face"
+            style={{ border: "var(--rule-hair) solid var(--color-rule-2)", background: "var(--color-paper)", padding: "var(--space-lg)" }}>
             <div className="text-center">
-              <div className="text-xs muted uppercase tracking-wider mb-3">{spanishFirst ? "Spanish" : "English"}</div>
-              <div className="text-3xl md:text-4xl font-bold">{front}</div>
-              <div className="text-xs muted mt-6">Click or press Space to flip</div>
+              <p className="label">{spanishFirst ? "Español" : "Inglés"}</p>
+              <p className="display" style={{ fontSize: "var(--text-2xl)", marginTop: "var(--space-sm)", overflowWrap: "anywhere" }}>{front}</p>
+              <p className="tag" style={{ marginTop: "var(--space-xl)" }}>Click or press Space to turn</p>
             </div>
           </div>
-          <div className="flip-face flip-back card-shell p-8" style={{ borderColor: set.color }}>
+          <div className="flip-face flip-back"
+            style={{ border: "var(--rule-hair) solid var(--color-accent)", background: "var(--color-paper-2)", padding: "var(--space-lg)" }}>
             <div className="text-center">
-              <div className="text-xs muted uppercase tracking-wider mb-3">{spanishFirst ? "English" : "Spanish"}</div>
-              <div className="text-3xl md:text-4xl font-bold">{back}</div>
+              <p className="label">{spanishFirst ? "Inglés" : "Español"}</p>
+              <p className="display" style={{ fontSize: "var(--text-2xl)", marginTop: "var(--space-sm)", overflowWrap: "anywhere" }}>{back}</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-2 mt-4">
-        <button className="btn btn-ghost" onClick={() => go(-1)} disabled={i === 0}>← Back</button>
+      <div className="flex items-center justify-center gap-3" style={{ marginTop: "var(--space-lg)" }}>
+        <button className="btn btn-outline" onClick={() => go(-1)} disabled={i === 0}>← Back</button>
         <SpeakButton text={card.term} />
         <button
-          className="btn btn-ghost !p-2 !rounded-lg"
-          aria-label="Star term"
-          style={{ color: card.starred ? "var(--warn)" : "var(--muted)" }}
+          className="btn btn-quiet data"
+          aria-label={card.starred ? "Unmark term" : "Mark term"}
+          aria-pressed={!!card.starred}
+          style={{ color: card.starred ? "var(--color-accent)" : "var(--color-muted)" }}
           onClick={() => {
             const next = structuredClone(set);
             const c = next.cards.find((x) => x.id === card.id);
             if (c) c.starred = !c.starred;
             upsertSet(next);
           }}
-        >★</button>
+        >{card.starred ? "●" : "○"}</button>
         <button className="btn btn-primary" onClick={() => go(1)} disabled={done}>Next →</button>
       </div>
 
       {done && (
-        <div className="card-shell p-5 mt-4 text-center">
-          <p className="font-semibold">That is the whole stack.</p>
-          <div className="flex flex-wrap gap-2 justify-center mt-3">
-            <button className="btn btn-ghost" onClick={() => { setOrder(shuffle(order)); setI(0); setFlipped(false); }}>Shuffle and repeat</button>
+        <div className="text-center" style={{ marginTop: "var(--space-xl)", borderTop: "var(--rule-hair) solid var(--color-rule)", paddingTop: "var(--space-md)" }}>
+          <p className="muted">That is the whole stack.</p>
+          <div className="flex flex-wrap gap-3 justify-center" style={{ marginTop: "var(--space-md)" }}>
+            <button className="btn btn-outline" onClick={() => { setOrder(shuffle(order)); setI(0); setFlipped(false); }}>Shuffle and repeat</button>
             <Link href={`/sets/${set.id}/learn`} className="btn btn-primary">Move on to Learn</Link>
           </div>
         </div>
       )}
 
-      <div className="card-shell p-4 mt-4 flex flex-wrap gap-5">
-        <Toggle checked={spanishFirst} onChange={setSpanishFirst} label="Spanish side first" />
-        <Toggle checked={autoAudio} onChange={setAutoAudio} label="Read each card aloud" />
-        <Toggle checked={starredOnly} onChange={setStarredOnly} label="Starred terms only" />
-        <span className="text-xs muted ml-auto self-center">Space flip · ←/→ move · S speak · F star</span>
+      <div className="flex flex-wrap gap-x-6 gap-y-2 items-center"
+        style={{ marginTop: "var(--space-2xl)", borderTop: "var(--rule-hair) solid var(--color-rule)", paddingTop: "var(--space-md)" }}>
+        <Toggle checked={spanishFirst} onChange={setSpanishFirst} label="Spanish first" />
+        <Toggle checked={autoAudio} onChange={setAutoAudio} label="Read aloud" />
+        <Toggle checked={starredOnly} onChange={setStarredOnly} label="Marked only" />
+        <span className="tag ml-auto">space turn · ←/→ move · s speak · f mark</span>
       </div>
     </div>
   );

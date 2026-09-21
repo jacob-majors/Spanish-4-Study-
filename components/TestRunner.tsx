@@ -30,13 +30,10 @@ export function letterFor(pct: number) {
     : pct >= 60 ? "D" : "F";
 }
 
+const n2 = (i: number) => String(i + 1).padStart(2, "0");
+
 export default function TestRunner({
-  questions,
-  onGraded,
-  onNewTest,
-  newTestLabel = "New test",
-  backHref,
-  backLabel = "Back",
+  questions, onGraded, onNewTest, newTestLabel = "New test", backHref, backLabel = "Back",
 }: {
   questions: TestQuestion[];
   onGraded?: (r: GradedResult) => void;
@@ -103,23 +100,26 @@ export default function TestRunner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graded]);
 
-  /* ---------------- results ---------------- */
+  /* ------------------------- results ------------------------- */
   if (submitted && graded) {
     const pct = Math.round((graded.score / Math.max(1, graded.total)) * 100);
-    const tone = pct >= 80 ? "var(--good)" : pct >= 70 ? "var(--warn)" : "var(--bad)";
+    const tone = pct >= 80 ? "var(--color-good)" : pct >= 70 ? "var(--color-ink)" : "var(--color-accent)";
     const missedQs = graded.detail.filter((d) => !d.ok).map((d) => d.q);
     return (
       <div>
-        <div className="card-shell p-8 text-center">
-          <div className="text-5xl font-extrabold" style={{ color: tone }}>{pct}%</div>
-          <div className="text-xl font-bold mt-1" style={{ color: tone }}>{letterFor(pct)}</div>
-          <p className="muted mt-2">
-            {graded.score} of {graded.total} correct in {Math.round(elapsed / 1000)}s
-          </p>
+        {/* The grade, set the way a paper comes back: a figure and a letter. */}
+        <div style={{ borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-md)" }}>
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2">
+            <span className="data tnum" style={{ fontSize: "var(--text-display)", lineHeight: 1, color: tone }}>{pct}</span>
+            <span className="display" style={{ fontSize: "var(--text-2xl)", color: tone }}>{letterFor(pct)}</span>
+            <span className="tag" style={{ marginLeft: "auto" }}>
+              {graded.score}/{graded.total} correct · {Math.round(elapsed / 1000)}s
+            </span>
+          </div>
           {graded.total !== items.length && (
-            <p className="text-xs muted mt-1">Each matching pair is graded separately.</p>
+            <p className="tag" style={{ marginTop: "var(--space-xs)" }}>Each matching pair is graded separately.</p>
           )}
-          <div className="flex flex-wrap gap-2 justify-center mt-5">
+          <div className="flex flex-wrap gap-3 items-center" style={{ marginTop: "var(--space-lg)" }}>
             {missedQs.length > 0 && (
               <button className="btn btn-primary" onClick={() => {
                 setItems(shuffle(missedQs));
@@ -131,55 +131,58 @@ export default function TestRunner({
               </button>
             )}
             {onNewTest && <button className="btn btn-outline" onClick={onNewTest}>{newTestLabel}</button>}
-            {backHref && <Link href={backHref} className="btn btn-ghost">{backLabel}</Link>}
+            {backHref && <Link href={backHref} className="link label">{backLabel} →</Link>}
           </div>
         </div>
 
-        <h2 className="text-lg font-bold mt-6 mb-3">Answer key</h2>
-        <div className="space-y-2.5">
+        <h2 className="display" style={{ fontSize: "var(--text-xl)", marginTop: "var(--space-2xl)", borderBottom: "var(--rule-thick) solid var(--color-ink)", paddingBottom: "var(--space-xs)" }}>
+          Clave de respuestas
+        </h2>
+        <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
           {graded.detail.map((d, i) => (
-            <div key={d.q.id} className="card-shell p-4"
-              style={{ borderLeft: `3px solid ${d.ok ? "var(--good)" : "var(--bad)"}` }}>
-              <div className="flex items-start gap-2">
-                <span className="chip shrink-0">{i + 1}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium">
-                    {d.q.kind === "tf"
-                      ? `${d.q.prompt} = ${d.q.shown}`
-                      : d.q.kind === "conj"
-                        ? `${d.q.prompt} — ${d.q.subPrompt}`
-                        : d.q.prompt}
-                  </div>
-                  {d.rows ? (
-                    <div className="mt-2 space-y-1 text-sm">
-                      {d.rows.map((r) => (
-                        <div key={r.left} style={{ color: r.ok ? "var(--good)" : "var(--bad)" }}>
-                          {r.left} → {r.got || "(blank)"}
-                          {!r.ok && <span className="muted"> · correct: {r.want}</span>}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-sm mt-1">
-                      <span style={{ color: d.ok ? "var(--good)" : "var(--bad)" }}>
-                        Your answer: {d.yours || "(blank)"}
-                      </span>
-                      {!d.ok && <span className="muted"> · correct: <strong>{d.correct}</strong></span>}
-                    </div>
-                  )}
+            <li key={d.q.id} className="flex gap-4" style={{ borderTop: "var(--rule-hair) solid var(--color-rule)", paddingBlock: "var(--space-sm)" }}>
+              <span className="data shrink-0" style={{ fontSize: "var(--text-xs)", color: "var(--color-muted)", paddingTop: 4, width: "2ch" }}>{n2(i)}</span>
+              <div className="flex-1 min-w-0">
+                <div style={{ fontWeight: 500 }}>
+                  {d.q.kind === "tf"
+                    ? <>{d.q.prompt} <span className="muted">=</span> {d.q.shown}</>
+                    : d.q.kind === "conj"
+                      ? <><span className="display" style={{ fontSize: "var(--text-lg)" }}>{d.q.prompt}</span> <span className="tag">{d.q.subPrompt}</span></>
+                      : d.q.prompt}
                 </div>
-                <span className="shrink-0 font-bold" style={{ color: d.ok ? "var(--good)" : "var(--bad)" }}>
-                  {d.ok ? "✓" : "✗"}
-                </span>
+                {d.rows ? (
+                  <table className="sheet" style={{ marginTop: "var(--space-2xs)" }}>
+                    <tbody>
+                      {d.rows.map((r) => (
+                        <tr key={r.left}>
+                          <td style={{ fontSize: "var(--text-sm)" }}>{r.left}</td>
+                          <td style={{ fontSize: "var(--text-sm)", color: r.ok ? "var(--color-good)" : "var(--color-accent)" }}>
+                            {r.got || "—"}
+                          </td>
+                          <td className="tag" style={{ textAlign: "right" }}>{r.ok ? "" : r.want}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div style={{ fontSize: "var(--text-sm)", marginTop: 2 }}>
+                    <span style={{ color: d.ok ? "var(--color-good)" : "var(--color-accent)" }}>{d.yours || "—"}</span>
+                    {!d.ok && <span className="muted"> · correct: <span className="data" style={{ color: "var(--color-ink)" }}>{d.correct}</span></span>}
+                  </div>
+                )}
               </div>
-            </div>
+              <span className="shrink-0 data" aria-label={d.ok ? "Correct" : "Incorrect"}
+                style={{ color: d.ok ? "var(--color-good)" : "var(--color-accent)", paddingTop: 2 }}>
+                {d.ok ? "✓" : "✗"}
+              </span>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     );
   }
 
-  /* ---------------- taking ---------------- */
+  /* ------------------------- taking ------------------------- */
   const answered = items.filter((q) =>
     q.kind === "match"
       ? Object.keys((answers[q.id] as Record<string, string>) ?? {}).length === (q.pairs?.length ?? 0)
@@ -188,30 +191,41 @@ export default function TestRunner({
 
   return (
     <div>
-      <div className="sticky top-14 z-30 -mx-4 px-4 py-2.5 mb-4 backdrop-blur-xl"
-        style={{ background: "color-mix(in srgb, var(--bg) 88%, transparent)", borderBottom: "1px solid var(--border)" }}>
-        <div className="flex items-center gap-3 text-sm">
-          <span className="muted tabular-nums">{answered} / {items.length}</span>
-          <div className="flex-1"><ProgressBar value={(answered / Math.max(1, items.length)) * 100} /></div>
-          <span className="muted tabular-nums">
+      <div
+        className="sticky z-10"
+        style={{
+          top: 0,
+          background: "var(--color-paper)",
+          borderBottom: "var(--rule-hair) solid var(--color-rule-2)",
+          paddingBlock: "var(--space-xs)",
+          marginBottom: "var(--space-lg)",
+        }}
+      >
+        <div className="flex items-center gap-4">
+          <span className="data tnum tag">{answered}/{items.length}</span>
+          <span className="flex-1"><ProgressBar value={(answered / Math.max(1, items.length)) * 100} /></span>
+          <span className="data tnum tag">
             {Math.floor(elapsed / 60000)}:{String(Math.floor(elapsed / 1000) % 60).padStart(2, "0")}
           </span>
         </div>
       </div>
 
-      <div className="space-y-3">
+      <ol style={{ listStyle: "none", margin: 0, padding: 0 }}>
         {items.map((q, i) => (
-          <QuestionCard key={q.id} q={q} n={i + 1} value={answers[q.id]}
+          <QuestionRow key={q.id} q={q} n={i} value={answers[q.id]}
             onChange={(v) => setAnswers((a) => ({ ...a, [q.id]: v }))} />
         ))}
-      </div>
+      </ol>
 
-      <div className="card-shell p-5 mt-5 flex flex-wrap items-center gap-3">
-        <div className="text-sm muted">
+      <div
+        className="flex flex-wrap items-center gap-4"
+        style={{ borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-md)", marginTop: "var(--space-md)" }}
+      >
+        <span className="muted" style={{ fontSize: "var(--text-sm)" }}>
           {answered < items.length
             ? `${items.length - answered} question${items.length - answered === 1 ? "" : "s"} still blank.`
             : "Everything answered."}
-        </div>
+        </span>
         <button className="btn btn-primary ml-auto" onClick={() => {
           if (answered < items.length && !confirm("Submit with blank answers?")) return;
           setSubmitted(true);
@@ -224,91 +238,120 @@ export default function TestRunner({
   );
 }
 
-function QuestionCard({ q, n, value, onChange }: {
+function QuestionRow({ q, n, value, onChange }: {
   q: TestQuestion; n: number;
   value: string | Record<string, string> | undefined;
   onChange: (v: string | Record<string, string>) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const num = <span className="data shrink-0" style={{ fontSize: "var(--text-xs)", color: "var(--color-muted)", paddingTop: 6, width: "2ch" }}>{n2(n)}</span>;
 
   if (q.kind === "match" && q.pairs) {
     const given = (value as Record<string, string>) ?? {};
     const options = q.pairs.map((p) => p.right);
     return (
-      <div className="card-shell p-4">
-        <div className="flex items-start gap-2">
-          <span className="chip shrink-0">{n}</span>
-          <div className="flex-1">
-            <div className="font-medium">{q.prompt}</div>
-            <div className="space-y-2 mt-3">
+      <li className="flex gap-4" style={{ borderTop: "var(--rule-hair) solid var(--color-rule)", paddingBlock: "var(--space-md)" }}>
+        {num}
+        <div className="flex-1 min-w-0">
+          <p className="label">Empareja</p>
+          <table className="sheet" style={{ marginTop: "var(--space-xs)" }}>
+            <tbody>
               {q.pairs.map((p) => (
-                <div key={p.left} className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium min-w-36">{p.left}</span>
-                  <select className="input !w-auto !py-1.5 text-sm flex-1 min-w-48"
-                    value={given[p.left] ?? ""}
-                    onChange={(e) => onChange({ ...given, [p.left]: e.target.value })}>
-                    <option value="">— choose —</option>
-                    {options.map((o) => <option key={o} value={o}>{o}</option>)}
-                  </select>
-                </div>
+                <tr key={p.left}>
+                  <td style={{ fontWeight: 500, width: "45%" }}>{p.left}</td>
+                  <td>
+                    <select className="field-box" aria-label={`Meaning of ${p.left}`}
+                      value={given[p.left] ?? ""}
+                      onChange={(e) => onChange({ ...given, [p.left]: e.target.value })}>
+                      <option value="">—</option>
+                      {options.map((o) => <option key={o} value={o}>{o}</option>)}
+                    </select>
+                  </td>
+                </tr>
               ))}
-            </div>
-          </div>
+            </tbody>
+          </table>
         </div>
-      </div>
+      </li>
     );
   }
 
   return (
-    <div className="card-shell p-4">
-      <div className="flex items-start gap-2">
-        <span className="chip shrink-0">{n}</span>
-        <div className="flex-1 min-w-0">
-          <div className="text-xs muted">{q.kind === "conj" ? q.subPrompt : q.note}</div>
-          <div className="font-medium text-lg mt-0.5 flex items-center gap-2 flex-wrap">
-            {q.kind === "tf" ? (
-              <span><strong>{q.prompt}</strong> <span className="muted">means</span> <strong>{q.shown}</strong></span>
-            ) : q.prompt}
-            {q.kind === "conj" && q.note && <span className="text-sm muted font-normal">({q.note})</span>}
-            {q.note?.includes("English meaning") && <SpeakButton text={q.prompt} />}
-          </div>
-
-          {q.kind === "mc" && (
-            <div className="grid sm:grid-cols-2 gap-2 mt-3">
-              {q.choices?.map((c) => (
-                <button key={c} onClick={() => onChange(c)}
-                  className="btn btn-outline !justify-start text-left !py-2.5 text-sm"
-                  style={value === c ? { borderColor: "var(--accent)", background: "color-mix(in srgb, var(--accent) 15%, transparent)" } : undefined}>
-                  {c}
-                </button>
-              ))}
-            </div>
+    <li className="flex gap-4" style={{ borderTop: "var(--rule-hair) solid var(--color-rule)", paddingBlock: "var(--space-md)" }}>
+      {num}
+      <div className="flex-1 min-w-0">
+        <p className="label">{q.kind === "conj" ? q.subPrompt : q.note}</p>
+        <div className="flex items-baseline gap-2 flex-wrap" style={{ marginTop: 2 }}>
+          {q.kind === "tf" ? (
+            <span style={{ fontSize: "var(--text-lg)" }}>
+              <strong style={{ fontWeight: 500 }}>{q.prompt}</strong> <span className="muted">means</span>{" "}
+              <strong style={{ fontWeight: 500 }}>{q.shown}</strong>
+            </span>
+          ) : (
+            <span className="display" style={{ fontSize: "var(--text-xl)" }}>{q.prompt}</span>
           )}
+          {q.kind === "conj" && q.note && <span className="muted" style={{ fontSize: "var(--text-sm)" }}>({q.note})</span>}
+          {q.note?.includes("English meaning") && <SpeakButton text={q.prompt} />}
+        </div>
 
-          {q.kind === "tf" && (
-            <div className="flex gap-2 mt-3">
-              {["true", "false"].map((v) => (
-                <button key={v} onClick={() => onChange(v)}
-                  className="btn btn-outline !px-6 capitalize"
-                  style={value === v ? { borderColor: "var(--accent)", background: "color-mix(in srgb, var(--accent) 15%, transparent)" } : undefined}>
+        {q.kind === "mc" && (
+          <div className="grid gap-x-6" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 14rem), 1fr))", marginTop: "var(--space-xs)" }}>
+            {q.choices?.map((c, ci) => {
+              const on = value === c;
+              return (
+                <button key={c} onClick={() => onChange(c)} aria-pressed={on}
+                  className="flex items-baseline gap-3 text-left"
+                  style={{ paddingBlock: "var(--space-2xs)", minHeight: 40, color: on ? "var(--color-ink)" : "var(--color-ink-2)" }}>
+                  <span className="data shrink-0" style={{
+                    fontSize: "var(--text-xs)", width: "1.6em", textAlign: "center",
+                    border: `var(--rule-hair) solid ${on ? "var(--color-ink)" : "var(--color-rule-2)"}`,
+                    background: on ? "var(--color-ink)" : "transparent",
+                    color: on ? "var(--color-paper)" : "var(--color-muted)",
+                  }}>
+                    {"abcd"[ci] ?? "·"}
+                  </span>
+                  <span style={{ fontSize: "var(--text-sm)" }}>{c}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {q.kind === "tf" && (
+          <div className="flex gap-6" style={{ marginTop: "var(--space-xs)" }}>
+            {["true", "false"].map((v) => {
+              const on = value === v;
+              return (
+                <button key={v} onClick={() => onChange(v)} aria-pressed={on}
+                  className="flex items-baseline gap-2 capitalize"
+                  style={{ minHeight: 40, color: on ? "var(--color-ink)" : "var(--color-ink-2)", fontSize: "var(--text-sm)" }}>
+                  <span className="data shrink-0" aria-hidden="true" style={{
+                    width: 14, height: 14, transform: "translateY(2px)",
+                    border: `var(--rule-hair) solid ${on ? "var(--color-ink)" : "var(--color-rule-2)"}`,
+                    background: on ? "var(--color-ink)" : "transparent",
+                  }} />
                   {v}
                 </button>
-              ))}
-            </div>
-          )}
+              );
+            })}
+          </div>
+        )}
 
-          {(q.kind === "write" || q.kind === "conj") && (
-            <div className="mt-3 space-y-2">
-              <input ref={inputRef} className="input" placeholder={q.kind === "conj" ? "Conjugate it…" : "Your answer…"}
-                value={(value as string) ?? ""} autoComplete="off" spellCheck={false}
-                onChange={(e) => onChange(e.target.value)} />
-              {(q.kind === "conj" || q.note?.includes("Spanish term")) && (
+        {(q.kind === "write" || q.kind === "conj") && (
+          <div style={{ marginTop: "var(--space-xs)", maxWidth: "26rem" }}>
+            <input ref={inputRef} className={`field ${q.kind === "conj" ? "data" : ""}`}
+              placeholder={q.kind === "conj" ? "conjugate…" : "answer…"}
+              value={(value as string) ?? ""} autoComplete="off" spellCheck={false}
+              aria-label={q.kind === "conj" ? `Conjugate ${q.prompt}` : q.note}
+              onChange={(e) => onChange(e.target.value)} />
+            {(q.kind === "conj" || q.note?.includes("Spanish term")) && (
+              <div style={{ marginTop: "var(--space-xs)" }}>
                 <AccentKeys onInsert={(ch) => { onChange(((value as string) ?? "") + ch); inputRef.current?.focus(); }} />
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-    </div>
+    </li>
   );
 }

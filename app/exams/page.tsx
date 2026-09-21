@@ -5,14 +5,13 @@ import { useEffect, useState } from "react";
 import { allExams, syncCurriculum, countdownLabel, formatExamDate, daysUntil } from "@/lib/curriculum";
 import { ExamPlan } from "@/lib/curriculumTypes";
 
-const EXAMPLE = `Hey Claude — here's my next test.
+const EXAMPLE = `Unit 5 exam, Thursday October 9.
+Covers the health + body vocab, preterite vs
+imperfect, and the present subjunctive.
+Format: 20 matching, 15 fill-in conjugation,
+10 multiple choice.
 
-  Unit 5 exam, Thursday October 9.
-  It covers the final-exam vocab packet (health + body),
-  preterite vs imperfect, and the present subjunctive.
-  Format: 20 matching, 15 fill-in conjugation, 10 multiple choice.
-
-[attach the review packet / study guide]`;
+[attach the review packet]`;
 
 export default function ExamsPage() {
   const [ready, setReady] = useState(false);
@@ -23,52 +22,55 @@ export default function ExamsPage() {
   const past = exams.filter((e) => daysUntil(e.date) < 0).reverse();
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Tests</h1>
-        <p className="muted text-sm mt-1">
-          Every test Claude has prepped from a packet, with a countdown, a topic checklist and a
-          mock exam built to match the real format.
-        </p>
-      </div>
+    <div>
+      <p className="label">Exámenes</p>
+      <h1 className="display" style={{ fontSize: "var(--text-2xl)", marginTop: "var(--space-xs)" }}>
+        Calendario
+      </h1>
+      <p className="muted measure" style={{ marginTop: "var(--space-sm)" }}>
+        Every test prepared from a packet, with a countdown, a topic checklist, and a mock exam built
+        to match the real format.
+      </p>
 
       {!ready ? (
-        <div className="card-shell p-8 text-center muted text-sm">Loading…</div>
+        <p className="muted" style={{ marginTop: "var(--space-xl)" }}>Loading…</p>
       ) : !exams.length ? (
-        <div className="card-shell p-6">
-          <h2 className="font-bold text-lg">No tests loaded yet</h2>
-          <p className="muted text-sm mt-1.5 max-w-2xl">
-            Hand Claude the details and the review packet in chat. Claude writes the vocabulary and
-            the exam plan into <code>data/curriculum.ts</code>, you push, and the test shows up here
-            with study material already built.
+        <section style={{ marginTop: "var(--space-2xl)", borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-md)" }}>
+          <h2 className="display" style={{ fontSize: "var(--text-xl)" }}>Nothing on the calendar</h2>
+          <p className="muted measure" style={{ marginTop: "var(--space-xs)" }}>
+            Hand Claude the details and the review packet in chat. The vocabulary and the exam plan
+            get written into <span className="data">data/curriculum.ts</span>; push, and the test
+            shows up here with study material already built.
           </p>
-          <div className="mt-4">
-            <div className="text-xs muted uppercase tracking-wide mb-1.5">What to send</div>
-            <pre className="rounded-xl p-4 text-xs overflow-auto whitespace-pre-wrap"
-              style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>{EXAMPLE}</pre>
-          </div>
-          <p className="muted text-xs mt-3">
+          <p className="label" style={{ marginTop: "var(--space-lg)" }}>What to send</p>
+          <pre
+            className="data measure"
+            style={{
+              marginTop: "var(--space-xs)",
+              whiteSpace: "pre-wrap",
+              fontSize: "var(--text-xs)",
+              lineHeight: 1.8,
+              color: "var(--color-ink-2)",
+              borderLeft: "var(--rule-thick) solid var(--color-rule-2)",
+              paddingLeft: "var(--space-md)",
+            }}
+          >
+            {EXAMPLE}
+          </pre>
+          <p className="muted measure" style={{ fontSize: "var(--text-sm)", marginTop: "var(--space-md)" }}>
             A photo of the study guide, a PDF, a Quizlet export or just a list of topics all work.
             Anything missing gets a sensible default.
           </p>
-        </div>
+        </section>
       ) : (
         <>
           {upcoming.length > 0 && (
-            <section>
-              <h2 className="text-lg font-bold mb-3">Coming up</h2>
-              <div className="space-y-2.5">
-                {upcoming.map((e) => <ExamCard key={e.id} exam={e} />)}
-              </div>
-            </section>
+            <ExamList title="Próximos" exams={upcoming} />
           )}
           {past.length > 0 && (
-            <section>
-              <h2 className="text-lg font-bold mb-3">Past</h2>
-              <div className="space-y-2.5 opacity-70">
-                {past.map((e) => <ExamCard key={e.id} exam={e} />)}
-              </div>
-            </section>
+            <div style={{ opacity: 0.6 }}>
+              <ExamList title="Pasados" exams={past} />
+            </div>
           )}
         </>
       )}
@@ -76,22 +78,40 @@ export default function ExamsPage() {
   );
 }
 
-function ExamCard({ exam }: { exam: ExamPlan }) {
-  const d = daysUntil(exam.date);
-  const tone = d < 0 ? "var(--muted)" : d <= 2 ? "var(--warn)" : "var(--accent)";
+function ExamList({ title, exams }: { title: string; exams: ExamPlan[] }) {
   return (
-    <Link href={`/exams/${exam.id}`} className="card-shell p-5 flex flex-wrap items-center gap-4 hover:-translate-y-0.5 transition-transform">
-      <div className="flex-1 min-w-48">
-        <div className="font-semibold text-lg">{exam.title}</div>
-        <div className="text-sm muted mt-0.5">{formatExamDate(exam.date)}{exam.format ? ` · ${exam.format}` : ""}</div>
-        {exam.topics.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2.5">
-            {exam.topics.slice(0, 5).map((t) => <span key={t} className="chip">{t}</span>)}
-            {exam.topics.length > 5 && <span className="chip">+{exam.topics.length - 5}</span>}
-          </div>
-        )}
-      </div>
-      <div className="text-xl font-extrabold text-right" style={{ color: tone }}>{countdownLabel(exam.date)}</div>
-    </Link>
+    <section style={{ marginTop: "var(--space-2xl)" }}>
+      <h2 className="display" style={{ fontSize: "var(--text-xl)", borderBottom: "var(--rule-thick) solid var(--color-ink)", paddingBottom: "var(--space-xs)" }}>
+        {title}
+      </h2>
+      {exams.map((e, i) => {
+        const d = daysUntil(e.date);
+        return (
+          <Link key={e.id} href={`/exams/${e.id}`} className="row" style={{ textDecoration: "none", color: "inherit", alignItems: "flex-start" }}>
+            <span className="data shrink-0" style={{ color: "var(--color-muted)", fontSize: "var(--text-xs)", width: "2ch", paddingTop: "var(--space-2xs)" }}>
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="flex-1 min-w-0">
+              <span className="display block" style={{ fontSize: "var(--text-lg)" }}>{e.title}</span>
+              <span className="tag block" style={{ marginTop: "var(--space-3xs)" }}>
+                {formatExamDate(e.date)}{e.format ? ` · ${e.format}` : ""}
+              </span>
+              {e.topics.length > 0 && (
+                <span className="muted block" style={{ fontSize: "var(--text-sm)", marginTop: "var(--space-2xs)" }}>
+                  {e.topics.slice(0, 4).join(" · ")}
+                  {e.topics.length > 4 && ` · +${e.topics.length - 4}`}
+                </span>
+              )}
+            </span>
+            <span
+              className="data shrink-0 text-right"
+              style={{ fontSize: "var(--text-sm)", paddingTop: "var(--space-2xs)", color: d < 0 ? "var(--color-muted)" : d <= 2 ? "var(--color-accent)" : "var(--color-ink-2)" }}
+            >
+              {countdownLabel(e.date)}
+            </span>
+          </Link>
+        );
+      })}
+    </section>
   );
 }

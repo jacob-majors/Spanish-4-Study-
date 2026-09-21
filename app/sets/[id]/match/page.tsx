@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSet } from "@/lib/useSet";
 import { sample, shuffle } from "@/lib/srs";
 import { touchStreak } from "@/lib/storage";
-import { useLocalState } from "@/components/ui";
+import { useLocalState, Choice } from "@/components/ui";
 import { SetHeader, NotFound } from "@/components/SetHeader";
 
 interface Tile { id: string; cardId: string; text: string; side: "term" | "def" }
@@ -63,7 +63,7 @@ export default function MatchPage() {
 
   if (!set) return ready ? <NotFound /> : null;
   if (set.cards.length < 3)
-    return <div><SetHeader set={set} mode="Match" /><div className="card-shell p-10 text-center muted">Add at least 3 terms to play Match.</div></div>;
+    return <div><SetHeader set={set} mode="Emparejar" /><p className="muted">Add at least 3 terms to play Match.</p></div>;
 
   function pick(t: Tile) {
     if (cleared.has(t.cardId) || wrongPair.length) return;
@@ -82,40 +82,41 @@ export default function MatchPage() {
   const secs = (n: number) => (n / 1000).toFixed(1) + "s";
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <SetHeader set={set} mode="Match" />
+    <div>
+      <SetHeader set={set} mode="Emparejar" />
 
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="text-2xl font-bold tabular-nums" style={{ color: won ? "var(--good)" : undefined }}>{secs(ms)}</div>
-        <span className="chip">{cleared.size} / {total} pairs</span>
-        {misses > 0 && <span className="chip" style={{ color: "var(--bad)" }}>{misses} miss{misses === 1 ? "" : "es"}</span>}
-        {best !== null && <span className="chip">best {secs(best)}</span>}
-        <div className="ml-auto flex gap-1.5">
+      <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2"
+        style={{ borderBottom: "var(--rule-hair) solid var(--color-rule)", paddingBottom: "var(--space-xs)" }}>
+        <span className="data tnum" style={{ fontSize: "var(--text-xl)", color: won ? "var(--color-good)" : "var(--color-ink)" }}>{secs(ms)}</span>
+        <span className="tag">{cleared.size}/{total} pairs</span>
+        {misses > 0 && <span className="tag" style={{ color: "var(--color-accent)" }}>{misses} miss{misses === 1 ? "" : "es"}</span>}
+        {best !== null && <span className="tag">best {secs(best)}</span>}
+        <div className="ml-auto flex flex-wrap gap-2">
           {SIZES.map((n) => (
-            <button key={n} onClick={() => setSize(n)} disabled={n > set.cards.length}
-              className="btn btn-ghost !py-1 !px-2.5 text-xs"
-              style={size === n ? { background: "var(--accent)", color: "#fff" } : undefined}>
-              {n} pairs
-            </button>
+            <Choice key={n} on={size === n} disabled={n > set.cards.length} onClick={() => setSize(n)}>
+              {n}
+            </Choice>
           ))}
-          <button className="btn btn-outline !py-1 !px-2.5 text-xs" onClick={() => deal()}>Restart</button>
+          <button className="link label self-center" onClick={() => deal()}>Restart</button>
         </div>
       </div>
 
       {won ? (
-        <div className="card-shell p-8 text-center">
-          <div className="text-4xl font-extrabold" style={{ color: "var(--good)" }}>{secs(ms)}</div>
-          <p className="muted mt-1">
+        <div style={{ marginTop: "var(--space-2xl)", borderTop: "var(--rule-thick) solid var(--color-ink)", paddingTop: "var(--space-md)" }}>
+          <div className="data tnum" style={{ fontSize: "var(--text-display)", lineHeight: 1, color: "var(--color-good)" }}>{secs(ms)}</div>
+          <p className="muted" style={{ marginTop: "var(--space-xs)" }}>
             All {total} pairs matched{misses ? ` with ${misses} miss${misses === 1 ? "" : "es"}` : " with a clean sweep"}.
           </p>
-          {best !== null && ms + misses * 1000 <= best && <p className="mt-2 font-semibold" style={{ color: "var(--warn)" }}>New personal best.</p>}
-          <div className="flex flex-wrap gap-2 justify-center mt-5">
+          {best !== null && ms + misses * 1000 <= best && (
+            <p className="label" style={{ marginTop: "var(--space-xs)", color: "var(--color-accent)" }}>New personal best.</p>
+          )}
+          <div className="flex flex-wrap gap-3" style={{ marginTop: "var(--space-lg)" }}>
             <button className="btn btn-primary" onClick={() => deal()}>Play again</button>
             <Link href={`/sets/${set.id}/test`} className="btn btn-outline">Practice test</Link>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+        <div className="grid gap-px" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 11rem), 1fr))", background: "var(--color-rule)", marginTop: "var(--space-lg)", border: "var(--rule-hair) solid var(--color-rule)" }}>
           {tiles.map((t) => {
             const isCleared = cleared.has(t.cardId);
             const isSelected = selected?.id === t.id;
@@ -125,13 +126,16 @@ export default function MatchPage() {
                 key={t.id}
                 onClick={() => pick(t)}
                 disabled={isCleared}
-                className={`card-shell p-3 min-h-20 text-sm font-medium grid place-items-center text-center transition-all ${isWrong ? "shake" : ""}`}
+                aria-pressed={isSelected}
+                className="grid place-items-center text-center"
                 style={{
-                  opacity: isCleared ? 0 : 1,
-                  pointerEvents: isCleared ? "none" : "auto",
-                  borderColor: isWrong ? "var(--bad)" : isSelected ? "var(--accent)" : "var(--border)",
-                  background: isSelected ? "color-mix(in srgb, var(--accent) 18%, var(--surface))" : "var(--surface)",
-                  transform: isSelected ? "scale(0.97)" : undefined,
+                  minHeight: "5.5rem",
+                  padding: "var(--space-sm)",
+                  fontSize: "var(--text-sm)",
+                  visibility: isCleared ? "hidden" : "visible",
+                  background: isSelected ? "var(--color-ink)" : isWrong ? "var(--color-paper-3)" : "var(--color-paper)",
+                  color: isSelected ? "var(--color-paper)" : isWrong ? "var(--color-accent)" : "var(--color-ink)",
+                  transition: "background var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out)",
                 }}
               >
                 {t.text}
