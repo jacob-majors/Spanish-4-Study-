@@ -1,4 +1,4 @@
-import VoiceToggle from "@/components/VoiceToggle";
+import VoiceLabel from "@/components/VoiceLabel";
 import { CURRICULUM_SETS } from "@/data/curriculum";
 import { VERB_LIST } from "@/lib/conjugation/verbs";
 import { TENSES } from "@/lib/conjugation/types";
@@ -28,7 +28,7 @@ export default function Colophon() {
         {VERB_LIST.length} verbs across {TENSES.length} tenses. Vocabulary and tests are generated
         from the class packets in data/curriculum.ts. Progress is stored in this browser only.
         Set in Fraunces, IBM Plex Sans and JetBrains Mono.
-        <VoiceToggle />
+        <VoiceLabel />
       </div>
     </footer>
   );
