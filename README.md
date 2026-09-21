@@ -31,7 +31,10 @@ you have already learned.
   be required or forgiven per mode.
 - **Accent keys.** A click-to-insert row for á é í ó ú ñ ü ¿ ¡ so a US keyboard is
   not a handicap.
-- **Spanish audio** on every term via the browser's speech synthesis.
+- **Audio** on every term via the browser's speech synthesis. The voice is
+  switchable from the colophon at the foot of any page: Indian English (Rishi)
+  or Spanish (Paulina / Mónica). Spanish gives accurate pronunciation; the
+  Indian English voice reads Spanish spelling with English phonetics.
 - **Practice tests** you configure: how many questions, which types (multiple choice,
   written, true/false, matching), which direction, and whether to weight the test
   toward what you keep missing. Graded with a letter grade, a full answer key, and a
