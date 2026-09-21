@@ -1,0 +1,330 @@
+import { VerbEntry } from "./types";
+
+/**
+ * Verb table for the conjugation engine.
+ *
+ * Only genuine irregularities are recorded here — everything a rule can derive
+ * (spelling changes before e/a/o, -ir boot verbs weakening in the third person,
+ * accents on -ído participles) is handled in engine.ts.
+ */
+export const VERBS: VerbEntry[] = [
+  /* ---------------- fully irregular ---------------- */
+  {
+    infinitive: "ser", english: "to be (permanent)", tags: ["irregular", "top"],
+    tuCommand: "sé",
+    forms: {
+      presente: ["soy", "eres", "es", "somos", "sois", "son"],
+      preterito: ["fui", "fuiste", "fue", "fuimos", "fuisteis", "fueron"],
+      imperfecto: ["era", "eras", "era", "éramos", "erais", "eran"],
+      subjPresente: ["sea", "seas", "sea", "seamos", "seáis", "sean"],
+    },
+  },
+  {
+    infinitive: "estar", english: "to be (state/location)", tags: ["irregular", "top"],
+    preteriteStem: "estuv",
+    forms: {
+      presente: ["estoy", "estás", "está", "estamos", "estáis", "están"],
+      subjPresente: ["esté", "estés", "esté", "estemos", "estéis", "estén"],
+    },
+  },
+  {
+    infinitive: "ir", english: "to go", tags: ["irregular", "top"],
+    gerundio: "yendo", tuCommand: "ve",
+    forms: {
+      presente: ["voy", "vas", "va", "vamos", "vais", "van"],
+      preterito: ["fui", "fuiste", "fue", "fuimos", "fuisteis", "fueron"],
+      imperfecto: ["iba", "ibas", "iba", "íbamos", "ibais", "iban"],
+      subjPresente: ["vaya", "vayas", "vaya", "vayamos", "vayáis", "vayan"],
+    },
+  },
+  {
+    infinitive: "haber", english: "to have (auxiliary)", tags: ["irregular", "top"],
+    futureStem: "habr", preteriteStem: "hub",
+    forms: {
+      presente: ["he", "has", "ha", "hemos", "habéis", "han"],
+      subjPresente: ["haya", "hayas", "haya", "hayamos", "hayáis", "hayan"],
+    },
+  },
+  {
+    infinitive: "dar", english: "to give", tags: ["irregular", "top"],
+    forms: {
+      presente: ["doy", "das", "da", "damos", "dais", "dan"],
+      preterito: ["di", "diste", "dio", "dimos", "disteis", "dieron"],
+      subjPresente: ["dé", "des", "dé", "demos", "deis", "den"],
+    },
+  },
+  {
+    infinitive: "ver", english: "to see", tags: ["irregular", "top"],
+    yo: "veo", participio: "visto",
+    forms: {
+      presente: ["veo", "ves", "ve", "vemos", "veis", "ven"],
+      preterito: ["vi", "viste", "vio", "vimos", "visteis", "vieron"],
+      imperfecto: ["veía", "veías", "veía", "veíamos", "veíais", "veían"],
+    },
+  },
+  {
+    infinitive: "saber", english: "to know (facts)", tags: ["irregular", "top"],
+    yo: "sé", preteriteStem: "sup", futureStem: "sabr",
+    forms: { subjPresente: ["sepa", "sepas", "sepa", "sepamos", "sepáis", "sepan"] },
+  },
+  {
+    infinitive: "hacer", english: "to do, to make", tags: ["irregular", "top"],
+    yo: "hago", preteriteStem: "hic", futureStem: "har", participio: "hecho", tuCommand: "haz",
+    forms: { preterito: ["", "", "hizo", "", "", ""] },
+  },
+  {
+    infinitive: "decir", english: "to say, to tell", tags: ["irregular", "top"],
+    yo: "digo", stem: "e:i", preteriteStem: "dij", futureStem: "dir",
+    participio: "dicho", gerundio: "diciendo", tuCommand: "di",
+  },
+  { infinitive: "tener", english: "to have", tags: ["irregular", "top"], yo: "tengo", stem: "e:ie", preteriteStem: "tuv", futureStem: "tendr", tuCommand: "ten" },
+  { infinitive: "venir", english: "to come", tags: ["irregular", "top"], yo: "vengo", stem: "e:ie", preteriteStem: "vin", futureStem: "vendr", gerundio: "viniendo", tuCommand: "ven" },
+  { infinitive: "poder", english: "to be able to, can", tags: ["irregular", "top"], stem: "o:ue", preteriteStem: "pud", futureStem: "podr", gerundio: "pudiendo" },
+  { infinitive: "poner", english: "to put, to place", tags: ["irregular", "top"], yo: "pongo", preteriteStem: "pus", futureStem: "pondr", participio: "puesto", tuCommand: "pon" },
+  { infinitive: "querer", english: "to want, to love", tags: ["irregular", "top"], stem: "e:ie", preteriteStem: "quis", futureStem: "querr" },
+  { infinitive: "salir", english: "to leave, to go out", tags: ["irregular", "top"], yo: "salgo", futureStem: "saldr", tuCommand: "sal" },
+  { infinitive: "traer", english: "to bring", tags: ["irregular"], yo: "traigo", preteriteStem: "traj", gerundio: "trayendo", participio: "traído" },
+  { infinitive: "caer", english: "to fall", tags: ["irregular"], yo: "caigo" },
+  {
+    infinitive: "oír", english: "to hear", tags: ["irregular"],
+    gerundio: "oyendo", participio: "oído", yo: "oigo",
+    forms: {
+      presente: ["oigo", "oyes", "oye", "oímos", "oís", "oyen"],
+      preterito: ["oí", "oíste", "oyó", "oímos", "oísteis", "oyeron"],
+    },
+  },
+  { infinitive: "caber", english: "to fit", tags: ["irregular"], yo: "quepo", preteriteStem: "cup", futureStem: "cabr" },
+  { infinitive: "valer", english: "to be worth", tags: ["irregular"], yo: "valgo", futureStem: "valdr" },
+  { infinitive: "conducir", english: "to drive", tags: ["irregular"], yo: "conduzco", preteriteStem: "conduj" },
+  { infinitive: "traducir", english: "to translate", tags: ["irregular"], yo: "traduzco", preteriteStem: "traduj" },
+  { infinitive: "producir", english: "to produce", tags: ["irregular"], yo: "produzco", preteriteStem: "produj" },
+  {
+    infinitive: "reír", english: "to laugh", tags: ["irregular"],
+    gerundio: "riendo", participio: "reído",
+    forms: {
+      presente: ["río", "ríes", "ríe", "reímos", "reís", "ríen"],
+      preterito: ["reí", "reíste", "rió", "reímos", "reísteis", "rieron"],
+      subjPresente: ["ría", "rías", "ría", "riamos", "riáis", "rían"],
+    },
+  },
+  {
+    infinitive: "oler", english: "to smell", tags: ["irregular"], stem: "o:ue",
+    forms: {
+      presente: ["huelo", "hueles", "huele", "olemos", "oléis", "huelen"],
+      subjPresente: ["huela", "huelas", "huela", "olamos", "oláis", "huelan"],
+    },
+  },
+
+  /* ---------------- irregular yo / -go / -zco ---------------- */
+  { infinitive: "conocer", english: "to know (people, places)", tags: ["irregular", "top"], yo: "conozco" },
+  { infinitive: "parecer", english: "to seem", tags: ["irregular"], yo: "parezco" },
+  { infinitive: "ofrecer", english: "to offer", tags: ["irregular"], yo: "ofrezco" },
+  { infinitive: "crecer", english: "to grow", tags: ["irregular"], yo: "crezco" },
+  { infinitive: "establecer", english: "to establish", tags: ["irregular"], yo: "establezco" },
+  { infinitive: "pertenecer", english: "to belong", tags: ["irregular"], yo: "pertenezco" },
+  { infinitive: "agradecer", english: "to thank", tags: ["irregular"], yo: "agradezco" },
+  { infinitive: "merecer", english: "to deserve", tags: ["irregular"], yo: "merezco" },
+  { infinitive: "obedecer", english: "to obey", tags: ["irregular"], yo: "obedezco" },
+  { infinitive: "desaparecer", english: "to disappear", tags: ["irregular"], yo: "desaparezco" },
+  { infinitive: "traer", english: "to bring", tags: ["irregular"], yo: "traigo", preteriteStem: "traj", gerundio: "trayendo", participio: "traído" },
+  { infinitive: "hacerse", english: "to become", tags: ["irregular", "reflexive"], reflexive: true, yo: "hago", preteriteStem: "hic", futureStem: "har", participio: "hecho", tuCommand: "haz", forms: { preterito: ["", "", "hizo", "", "", ""] } },
+
+  /* ---------------- stem-changing e:ie ---------------- */
+  { infinitive: "pensar", english: "to think", tags: ["stem", "top"], stem: "e:ie" },
+  { infinitive: "empezar", english: "to begin", tags: ["stem", "spelling", "top"], stem: "e:ie" },
+  { infinitive: "comenzar", english: "to begin", tags: ["stem", "spelling"], stem: "e:ie" },
+  { infinitive: "cerrar", english: "to close", tags: ["stem"], stem: "e:ie" },
+  { infinitive: "entender", english: "to understand", tags: ["stem", "top"], stem: "e:ie" },
+  { infinitive: "perder", english: "to lose", tags: ["stem"], stem: "e:ie" },
+  { infinitive: "despertarse", english: "to wake up", tags: ["stem", "reflexive"], stem: "e:ie", reflexive: true },
+  { infinitive: "sentarse", english: "to sit down", tags: ["stem", "reflexive"], stem: "e:ie", reflexive: true },
+  { infinitive: "sentir", english: "to feel, to regret", tags: ["stem", "top"], stem: "e:ie" },
+  { infinitive: "sentirse", english: "to feel (emotion)", tags: ["stem", "reflexive"], stem: "e:ie", reflexive: true },
+  { infinitive: "mentir", english: "to lie", tags: ["stem"], stem: "e:ie" },
+  { infinitive: "preferir", english: "to prefer", tags: ["stem", "top"], stem: "e:ie" },
+  { infinitive: "sugerir", english: "to suggest", tags: ["stem"], stem: "e:ie" },
+  { infinitive: "divertirse", english: "to have fun", tags: ["stem", "reflexive"], stem: "e:ie", reflexive: true },
+  { infinitive: "convertirse", english: "to become, to turn into", tags: ["stem", "reflexive"], stem: "e:ie", reflexive: true },
+  { infinitive: "recomendar", english: "to recommend", tags: ["stem"], stem: "e:ie" },
+  { infinitive: "negar", english: "to deny", tags: ["stem", "spelling"], stem: "e:ie" },
+  { infinitive: "gobernar", english: "to govern", tags: ["stem"], stem: "e:ie" },
+  { infinitive: "nevar", english: "to snow", tags: ["stem"], stem: "e:ie" },
+  { infinitive: "advertir", english: "to warn", tags: ["stem"], stem: "e:ie" },
+
+  /* ---------------- stem-changing o:ue ---------------- */
+  { infinitive: "volver", english: "to return", tags: ["stem", "top"], stem: "o:ue", participio: "vuelto" },
+  { infinitive: "devolver", english: "to give back", tags: ["stem"], stem: "o:ue", participio: "devuelto" },
+  { infinitive: "resolver", english: "to solve", tags: ["stem"], stem: "o:ue", participio: "resuelto" },
+  { infinitive: "dormir", english: "to sleep", tags: ["stem", "top"], stem: "o:ue" },
+  { infinitive: "dormirse", english: "to fall asleep", tags: ["stem", "reflexive"], stem: "o:ue", reflexive: true },
+  { infinitive: "morir", english: "to die", tags: ["stem"], stem: "o:ue", participio: "muerto" },
+  { infinitive: "encontrar", english: "to find", tags: ["stem", "top"], stem: "o:ue" },
+  { infinitive: "contar", english: "to count, to tell", tags: ["stem"], stem: "o:ue" },
+  { infinitive: "recordar", english: "to remember", tags: ["stem", "top"], stem: "o:ue" },
+  { infinitive: "almorzar", english: "to eat lunch", tags: ["stem", "spelling"], stem: "o:ue" },
+  { infinitive: "costar", english: "to cost", tags: ["stem"], stem: "o:ue" },
+  { infinitive: "mostrar", english: "to show", tags: ["stem"], stem: "o:ue" },
+  { infinitive: "probar", english: "to try, to taste", tags: ["stem"], stem: "o:ue" },
+  { infinitive: "acostarse", english: "to go to bed", tags: ["stem", "reflexive"], stem: "o:ue", reflexive: true },
+  { infinitive: "soñar", english: "to dream", tags: ["stem"], stem: "o:ue" },
+  { infinitive: "llover", english: "to rain", tags: ["stem"], stem: "o:ue" },
+  { infinitive: "mover", english: "to move", tags: ["stem"], stem: "o:ue" },
+  { infinitive: "doler", english: "to hurt", tags: ["stem"], stem: "o:ue" },
+  { infinitive: "jugar", english: "to play", tags: ["stem", "spelling", "top"], stem: "u:ue" },
+
+  /* ---------------- stem-changing e:i ---------------- */
+  { infinitive: "pedir", english: "to ask for, to order", tags: ["stem", "top"], stem: "e:i" },
+  { infinitive: "servir", english: "to serve", tags: ["stem"], stem: "e:i" },
+  { infinitive: "repetir", english: "to repeat", tags: ["stem"], stem: "e:i" },
+  { infinitive: "seguir", english: "to follow, to continue", tags: ["stem", "spelling", "top"], stem: "e:i", yo: "sigo" },
+  { infinitive: "conseguir", english: "to get, to obtain", tags: ["stem", "spelling"], stem: "e:i", yo: "consigo" },
+  { infinitive: "vestirse", english: "to get dressed", tags: ["stem", "reflexive"], stem: "e:i", reflexive: true },
+  { infinitive: "despedirse", english: "to say goodbye", tags: ["stem", "reflexive"], stem: "e:i", reflexive: true },
+  { infinitive: "medir", english: "to measure", tags: ["stem"], stem: "e:i" },
+  { infinitive: "elegir", english: "to choose", tags: ["stem", "spelling"], stem: "e:i", yo: "elijo" },
+  { infinitive: "corregir", english: "to correct", tags: ["stem", "spelling"], stem: "e:i", yo: "corrijo" },
+  { infinitive: "impedir", english: "to prevent", tags: ["stem"], stem: "e:i" },
+
+  /* ---------------- spelling changes ---------------- */
+  { infinitive: "buscar", english: "to look for", tags: ["spelling", "top"] },
+  { infinitive: "sacar", english: "to take out", tags: ["spelling"] },
+  { infinitive: "tocar", english: "to touch, to play (instrument)", tags: ["spelling"] },
+  { infinitive: "explicar", english: "to explain", tags: ["spelling"] },
+  { infinitive: "practicar", english: "to practice", tags: ["spelling"] },
+  { infinitive: "llegar", english: "to arrive", tags: ["spelling", "top"] },
+  { infinitive: "pagar", english: "to pay", tags: ["spelling"] },
+  { infinitive: "entregar", english: "to hand in, to deliver", tags: ["spelling"] },
+  { infinitive: "apagar", english: "to turn off", tags: ["spelling"] },
+  { infinitive: "cruzar", english: "to cross", tags: ["spelling"] },
+  { infinitive: "abrazar", english: "to hug", tags: ["spelling"] },
+  { infinitive: "organizar", english: "to organize", tags: ["spelling"] },
+  { infinitive: "realizar", english: "to carry out, to achieve", tags: ["spelling"] },
+  { infinitive: "escoger", english: "to choose", tags: ["spelling"], yo: "escojo" },
+  { infinitive: "recoger", english: "to pick up", tags: ["spelling"], yo: "recojo" },
+  { infinitive: "proteger", english: "to protect", tags: ["spelling"], yo: "protejo" },
+  { infinitive: "dirigir", english: "to direct", tags: ["spelling"], yo: "dirijo" },
+  { infinitive: "exigir", english: "to demand", tags: ["spelling"], yo: "exijo" },
+  { infinitive: "vencer", english: "to defeat, to overcome", tags: ["spelling"], yo: "venzo" },
+  { infinitive: "construir", english: "to build", tags: ["spelling"], yo: "construyo" },
+  { infinitive: "destruir", english: "to destroy", tags: ["spelling"], yo: "destruyo" },
+  { infinitive: "incluir", english: "to include", tags: ["spelling"], yo: "incluyo" },
+  { infinitive: "huir", english: "to flee", tags: ["spelling"], yo: "huyo" },
+  { infinitive: "contribuir", english: "to contribute", tags: ["spelling"], yo: "contribuyo" },
+  { infinitive: "leer", english: "to read", tags: ["spelling", "top"], participio: "leído" },
+  { infinitive: "creer", english: "to believe", tags: ["spelling", "top"], participio: "creído" },
+  { infinitive: "enviar", english: "to send", tags: ["spelling"], stem: "accent:i" },
+  { infinitive: "guiar", english: "to guide", tags: ["spelling"], stem: "accent:i" },
+  { infinitive: "continuar", english: "to continue", tags: ["spelling"], stem: "accent:u" },
+  { infinitive: "actuar", english: "to act", tags: ["spelling"], stem: "accent:u" },
+
+  /* ---------------- irregular participles ---------------- */
+  { infinitive: "escribir", english: "to write", tags: ["irregular", "top"], participio: "escrito" },
+  { infinitive: "describir", english: "to describe", tags: ["irregular"], participio: "descrito" },
+  { infinitive: "abrir", english: "to open", tags: ["irregular", "top"], participio: "abierto" },
+  { infinitive: "cubrir", english: "to cover", tags: ["irregular"], participio: "cubierto" },
+  { infinitive: "descubrir", english: "to discover", tags: ["irregular"], participio: "descubierto" },
+  { infinitive: "romper", english: "to break", tags: ["irregular"], participio: "roto" },
+  {
+    infinitive: "freír", english: "to fry", tags: ["irregular"], stem: "e:i",
+    participio: "frito", gerundio: "friendo",
+    forms: {
+      presente: ["frío", "fríes", "fríe", "freímos", "freís", "fríen"],
+      preterito: ["freí", "freíste", "frió", "freímos", "freísteis", "frieron"],
+      subjPresente: ["fría", "frías", "fría", "friamos", "friáis", "frían"],
+    },
+  },
+
+  /* ---------------- high-frequency regular ---------------- */
+  { infinitive: "hablar", english: "to speak, to talk", tags: ["regular", "top"] },
+  { infinitive: "estudiar", english: "to study", tags: ["regular", "top"] },
+  { infinitive: "trabajar", english: "to work", tags: ["regular", "top"] },
+  { infinitive: "caminar", english: "to walk", tags: ["regular"] },
+  { infinitive: "comprar", english: "to buy", tags: ["regular", "top"] },
+  { infinitive: "escuchar", english: "to listen", tags: ["regular"] },
+  { infinitive: "mirar", english: "to watch, to look at", tags: ["regular"] },
+  { infinitive: "necesitar", english: "to need", tags: ["regular", "top"] },
+  { infinitive: "ayudar", english: "to help", tags: ["regular"] },
+  { infinitive: "enseñar", english: "to teach, to show", tags: ["regular"] },
+  { infinitive: "llevar", english: "to carry, to wear", tags: ["regular"] },
+  { infinitive: "dejar", english: "to leave (behind), to allow", tags: ["regular"] },
+  { infinitive: "tomar", english: "to take, to drink", tags: ["regular"] },
+  { infinitive: "usar", english: "to use", tags: ["regular"] },
+  { infinitive: "viajar", english: "to travel", tags: ["regular"] },
+  { infinitive: "cantar", english: "to sing", tags: ["regular"] },
+  { infinitive: "bailar", english: "to dance", tags: ["regular"] },
+  { infinitive: "cocinar", english: "to cook", tags: ["regular"] },
+  { infinitive: "limpiar", english: "to clean", tags: ["regular"] },
+  { infinitive: "esperar", english: "to wait, to hope", tags: ["regular", "top"] },
+  { infinitive: "terminar", english: "to finish", tags: ["regular"] },
+  { infinitive: "olvidar", english: "to forget", tags: ["regular"] },
+  { infinitive: "preguntar", english: "to ask (a question)", tags: ["regular"] },
+  { infinitive: "contestar", english: "to answer", tags: ["regular"] },
+  { infinitive: "gustar", english: "to be pleasing (to like)", tags: ["regular", "top"] },
+  { infinitive: "encantar", english: "to love, to delight", tags: ["regular"] },
+  { infinitive: "faltar", english: "to lack, to be missing", tags: ["regular"] },
+  { infinitive: "quedar", english: "to remain, to be left", tags: ["regular"] },
+  { infinitive: "intentar", english: "to try", tags: ["regular"] },
+  { infinitive: "lograr", english: "to achieve, to manage to", tags: ["regular"] },
+  { infinitive: "apoyar", english: "to support", tags: ["regular"] },
+  { infinitive: "mejorar", english: "to improve", tags: ["regular"] },
+  { infinitive: "desarrollar", english: "to develop", tags: ["regular"] },
+  { infinitive: "aumentar", english: "to increase", tags: ["regular"] },
+  { infinitive: "comer", english: "to eat", tags: ["regular", "top"] },
+  { infinitive: "beber", english: "to drink", tags: ["regular"] },
+  { infinitive: "aprender", english: "to learn", tags: ["regular", "top"] },
+  { infinitive: "comprender", english: "to understand", tags: ["regular"] },
+  { infinitive: "correr", english: "to run", tags: ["regular"] },
+  { infinitive: "vender", english: "to sell", tags: ["regular"] },
+  { infinitive: "responder", english: "to respond", tags: ["regular"] },
+  { infinitive: "deber", english: "should, ought to, to owe", tags: ["regular"] },
+  { infinitive: "temer", english: "to fear", tags: ["regular"] },
+  { infinitive: "vivir", english: "to live", tags: ["regular", "top"] },
+  { infinitive: "recibir", english: "to receive", tags: ["regular"] },
+  { infinitive: "decidir", english: "to decide", tags: ["regular"] },
+  { infinitive: "permitir", english: "to permit, to allow", tags: ["regular"] },
+  { infinitive: "compartir", english: "to share", tags: ["regular"] },
+  { infinitive: "asistir", english: "to attend", tags: ["regular"] },
+  { infinitive: "subir", english: "to go up, to upload", tags: ["regular"] },
+  { infinitive: "sufrir", english: "to suffer", tags: ["regular"] },
+  { infinitive: "añadir", english: "to add", tags: ["regular"] },
+
+  /* ---------------- reflexive ---------------- */
+  { infinitive: "levantarse", english: "to get up", tags: ["reflexive", "top"], reflexive: true },
+  { infinitive: "ducharse", english: "to shower", tags: ["reflexive"], reflexive: true },
+  { infinitive: "bañarse", english: "to bathe", tags: ["reflexive"], reflexive: true },
+  { infinitive: "lavarse", english: "to wash oneself", tags: ["reflexive"], reflexive: true },
+  { infinitive: "llamarse", english: "to be called", tags: ["reflexive"], reflexive: true },
+  { infinitive: "quedarse", english: "to stay", tags: ["reflexive"], reflexive: true },
+  { infinitive: "preocuparse", english: "to worry", tags: ["reflexive"], reflexive: true },
+  { infinitive: "quejarse", english: "to complain", tags: ["reflexive"], reflexive: true },
+  { infinitive: "atreverse", english: "to dare", tags: ["reflexive"], reflexive: true },
+  { infinitive: "darse cuenta", english: "to realize", tags: ["reflexive"], reflexive: false, forms: {} },
+  { infinitive: "irse", english: "to leave, to go away", tags: ["reflexive", "irregular"], reflexive: true, gerundio: "yendo", tuCommand: "ve", forms: { presente: ["voy", "vas", "va", "vamos", "vais", "van"], preterito: ["fui", "fuiste", "fue", "fuimos", "fuisteis", "fueron"], imperfecto: ["iba", "ibas", "iba", "íbamos", "ibais", "iban"], subjPresente: ["vaya", "vayas", "vaya", "vayamos", "vayáis", "vayan"] } },
+  { infinitive: "ponerse", english: "to put on, to become", tags: ["reflexive", "irregular"], reflexive: true, yo: "pongo", preteriteStem: "pus", futureStem: "pondr", participio: "puesto", tuCommand: "pon" },
+];
+
+// "darse cuenta" is a phrase, not a conjugable infinitive — drop it from the table.
+const CLEAN = VERBS.filter((v) => /[aei]r(se)?$|ír(se)?$/.test(v.infinitive));
+
+const seen = new Set<string>();
+export const VERB_LIST: VerbEntry[] = CLEAN.filter((v) => {
+  if (seen.has(v.infinitive)) return false;
+  seen.add(v.infinitive);
+  return true;
+}).sort((a, b) => a.infinitive.localeCompare(b.infinitive, "es"));
+
+export const VERB_MAP: Record<string, VerbEntry> = Object.fromEntries(
+  VERB_LIST.map((v) => [v.infinitive, v]),
+);
+
+export const TOP_VERBS = VERB_LIST.filter((v) => v.tags?.includes("top"));
+
+export const VERB_GROUPS: { id: string; name: string; description: string; filter: (v: VerbEntry) => boolean }[] = [
+  { id: "top", name: "Most common", description: "The verbs that show up everywhere", filter: (v) => !!v.tags?.includes("top") },
+  { id: "irregular", name: "Irregular", description: "ser, ir, hacer, decir, tener…", filter: (v) => !!v.tags?.includes("irregular") },
+  { id: "stem", name: "Stem-changing", description: "e→ie, o→ue, e→i, u→ue boot verbs", filter: (v) => !!v.tags?.includes("stem") },
+  { id: "spelling", name: "Spelling changes", description: "-car, -gar, -zar, -ger, -uir, -eer", filter: (v) => !!v.tags?.includes("spelling") },
+  { id: "reflexive", name: "Reflexive", description: "levantarse, divertirse, irse…", filter: (v) => !!v.tags?.includes("reflexive") },
+  { id: "regular", name: "Regular", description: "Straight -ar / -er / -ir verbs", filter: (v) => !!v.tags?.includes("regular") },
+  { id: "all", name: "Everything", description: "Every verb in the library", filter: () => true },
+];

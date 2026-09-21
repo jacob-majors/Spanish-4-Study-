@@ -1,0 +1,116 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-ink-50: #f6f7fb;
+  --color-ink-100: #eceef6;
+  --color-ink-200: #d7dbe9;
+  --color-ink-300: #b0b7ce;
+  --color-ink-400: #7b849f;
+  --color-ink-500: #5b6480;
+  --color-ink-600: #434b64;
+  --color-ink-700: #313850;
+  --color-ink-800: #1e2437;
+  --color-ink-900: #141828;
+  --color-ink-950: #0b0e1a;
+}
+
+:root {
+  --bg: #0b0e1a;
+  --surface: #141828;
+  --surface-2: #1e2437;
+  --border: #2a3149;
+  --text: #f2f4fb;
+  --muted: #98a1bd;
+  --accent: #6c5ce7;
+  --accent-2: #00c2a8;
+  --warn: #ffb020;
+  --bad: #ff5a6a;
+  --good: #29d391;
+}
+
+:root[data-theme="light"] {
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #f0f2f9;
+  --border: #dfe3ef;
+  --text: #141828;
+  --muted: #5b6480;
+  --accent: #5b4bd6;
+  --accent-2: #00a58f;
+}
+
+* { border-color: var(--border); }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+}
+
+@layer utilities {
+  .surface { background: var(--surface); }
+  .surface-2 { background: var(--surface-2); }
+  .muted { color: var(--muted); }
+  .accent { color: var(--accent); }
+  .card-shell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+  }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    border-radius: .75rem; font-weight: 600; transition: all .15s ease;
+    padding: .625rem 1rem; border: 1px solid transparent; cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover:not(:disabled) { filter: brightness(1.12); }
+  .btn-ghost { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+  .btn-ghost:hover:not(:disabled) { background: var(--border); }
+  .btn-outline { background: transparent; color: var(--text); border-color: var(--border); }
+  .btn-outline:hover:not(:disabled) { background: var(--surface-2); }
+  .input {
+    width: 100%; background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: .75rem; padding: .625rem .875rem; color: var(--text); outline: none;
+  }
+  .input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+  .chip {
+    display: inline-flex; align-items: center; gap: .375rem; border-radius: 999px;
+    padding: .25rem .625rem; font-size: .75rem; font-weight: 600;
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--muted);
+  }
+}
+
+/* Flashcard flip */
+.flip-scene { perspective: 1600px; }
+.flip-inner {
+  position: relative; width: 100%; height: 100%;
+  transition: transform .5s cubic-bezier(.22,.9,.3,1);
+  transform-style: preserve-3d;
+}
+.flip-inner.flipped { transform: rotateX(180deg); }
+.flip-face {
+  position: absolute; inset: 0; backface-visibility: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.flip-back { transform: rotateX(180deg); }
+
+@keyframes pop { 0% { transform: scale(.94); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
+.pop { animation: pop .18s ease-out; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+.shake { animation: shake .3s ease-in-out; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
