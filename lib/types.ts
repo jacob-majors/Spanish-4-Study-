@@ -18,6 +18,8 @@ export interface CardProgress {
 
 export interface StudySet {
   id: string;
+  /** Set if this set is generated from data/curriculum.ts. */
+  sourceId?: string;
   title: string;
   description?: string;
   cards: Card[];
@@ -32,7 +34,7 @@ export type Direction = "es-en" | "en-es";
 
 export interface TestQuestion {
   id: string;
-  kind: "mc" | "write" | "tf" | "match";
+  kind: "mc" | "write" | "tf" | "match" | "conj";
   prompt: string;
   answer: string;
   choices?: string[];
@@ -41,10 +43,15 @@ export interface TestQuestion {
   pairs?: { left: string; right: string }[];
   cardId?: string;
   note?: string;
+  /** Conjugation answers are graded with accents required. */
+  strict?: boolean;
+  /** Shown above a conjugation prompt: "pretérito · nosotros". */
+  subPrompt?: string;
 }
 
 export interface TestResult {
   setId: string;
+  examId?: string;
   setTitle: string;
   takenAt: number;
   score: number;
@@ -65,6 +72,8 @@ export interface DrillResult {
 
 export interface AppData {
   sets: StudySet[];
+  /** Exams you added in the app, alongside the ones in data/curriculum.ts. */
+  customExams?: import("./curriculumTypes").ExamPlan[];
   tests: TestResult[];
   drills: DrillResult[];
   streak: { count: number; lastDay: string };

@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 
 const LINKS = [
   { href: "/", label: "Home" },
-  { href: "/sets", label: "My sets" },
+  { href: "/exams", label: "Tests" },
+  { href: "/sets", label: "Vocabulary" },
   { href: "/conjugate", label: "Conjugation" },
   { href: "/tables", label: "Verb tables" },
   { href: "/progress", label: "Progress" },
@@ -44,12 +45,12 @@ export default function Nav() {
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl" style={{ background: "color-mix(in srgb, var(--bg) 82%, transparent)", borderBottom: "1px solid var(--border)" }}>
       <div className="mx-auto max-w-6xl px-4 h-14 flex items-center gap-3">
-        <Link href="/" className="flex items-center gap-2 font-bold text-lg shrink-0">
-          <span className="grid place-items-center w-7 h-7 rounded-lg text-white text-sm" style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}>V</span>
-          <span>Verbo</span>
+        <Link href="/" className="flex items-center gap-2 font-bold shrink-0">
+          <span className="grid place-items-center w-7 h-7 rounded-lg text-white text-xs font-extrabold" style={{ background: "linear-gradient(135deg, var(--accent), var(--accent-2))" }}>SA</span>
+          <span className="hidden sm:inline">Spanish 4</span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1 ml-4">
+        <nav className="hidden md:flex items-center gap-1 ml-2">
           {LINKS.map((l) => (
             <Link
               key={l.href}
@@ -65,7 +66,6 @@ export default function Nav() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <Link href="/sets/new" className="btn btn-primary !py-1.5 !px-3 text-sm">+ New set</Link>
           <ThemeToggle />
           <button className="md:hidden btn btn-ghost !p-2 !rounded-lg" onClick={() => setOpen(!open)} aria-label="Menu">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>

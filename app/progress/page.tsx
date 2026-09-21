@@ -27,8 +27,8 @@ export default function ProgressPage() {
     : 0;
 
   if (!data.sets.length && !data.tests.length && !data.drills.length) {
-    return <Empty title="Nothing tracked yet" body="Study a set or run a conjugation drill and your scores will show up here."
-      action={<Link href="/sets/new" className="btn btn-primary">Create a set</Link>} />;
+    return <Empty title="Nothing tracked yet" body="Study some vocabulary or run a conjugation drill and your scores will show up here."
+      action={<Link href="/sets" className="btn btn-primary">Go to vocabulary</Link>} />;
   }
 
   return (

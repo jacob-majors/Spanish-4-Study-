@@ -74,7 +74,6 @@ export default function SetPage() {
               {showStarredOnly ? "Show all" : `Starred only (${starCount})`}
             </button>
           )}
-          <Link href={`/sets/${set.id}/edit`} className="btn btn-outline !py-1 !px-3 text-xs ml-auto">Edit set</Link>
         </div>
         <div className="space-y-1.5">
           {cards.map((c) => {

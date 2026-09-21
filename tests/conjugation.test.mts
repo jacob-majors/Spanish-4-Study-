@@ -130,6 +130,26 @@ const spots: Spot[] = [
   ["ver","presentePerfecto",0,"he visto"],
   ["abrir","participio",0,"abierto"],
   ["gustar","presente",2,"gusta"],
+
+  // Verbs added from the SA Spanish 4 packets
+  ["volar","presente",0,"vuelo"],
+  ["herir","preterito",2,"hirió"],
+  ["hervir","presente",2,"hierve"],
+  ["hervir","gerundio",0,"hirviendo"],
+  ["juzgar","preterito",0,"juzgué"],
+  ["juzgar","subjPresente",0,"juzgue"],
+  ["machacar","preterito",0,"machaqué"],
+  ["agregar","subjPresente",3,"agreguemos"],
+  ["fortalecer","presente",0,"fortalezco"],
+  ["fortalecer","subjPresente",0,"fortalezca"],
+  ["reducir","preterito",5,"redujeron"],
+  ["caerse","presente",0,"me caigo"],
+  ["caerse","preterito",2,"se cayó"],
+  ["secarse","preterito",0,"me sequé"],
+  ["relajarse","imperativoAfirmativo",1,"relájate"],
+  ["enojarse","imperativoNegativo",1,"no te enojes"],
+  ["toser","presente",0,"toso"],
+  ["combatir","presente",3,"combatimos"],
 ];
 
 let pass = 0, total = 0;

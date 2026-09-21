@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { conjugate } from "@/lib/conjugation/engine";
 import { VERB_LIST, VERB_GROUPS, VERB_MAP } from "@/lib/conjugation/verbs";
 import { TENSES, TENSE_BY_KEY, TenseKey, PERSON_LABELS, VerbEntry } from "@/lib/conjugation/types";
@@ -15,7 +16,7 @@ interface Prompt { verb: VerbEntry; tense: TenseKey; person: number; answer: str
 
 const DEFAULT_TENSES: TenseKey[] = ["presente", "preterito", "imperfecto"];
 
-export default function ConjugatePage() {
+function ConjugateInner() {
   const [group, setGroup] = useLocalState<string>("verbo.drill.group", "top");
   const [tenses, setTenses] = useLocalState<TenseKey[]>("verbo.drill.tenses", DEFAULT_TENSES);
   const [people, setPeople] = useLocalState<number[]>("verbo.drill.people", [0, 1, 2, 3, 5]);
@@ -32,6 +33,28 @@ export default function ConjugatePage() {
   const [missed, setMissed] = useState<{ prompt: string; yours: string; correct: string }[]>([]);
   const [startedAt, setStartedAt] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const search = useSearchParams();
+  useEffect(() => {
+    const g = search.get("group");
+    const t = search.get("tenses");
+    const v = search.get("verbs");
+    const n = search.get("n");
+    if (v) {
+      const list = v.split(",").map((x) => x.trim()).filter((x) => VERB_MAP[x]);
+      if (list.length) { setCustomVerbs(list); setUseCustom(true); }
+    } else if (g && VERB_GROUPS.some((x) => x.id === g)) {
+      setGroup(g);
+      setUseCustom(false);
+    }
+    if (t) {
+      const list = t.split(",").map((x) => x.trim()) as TenseKey[];
+      const valid = list.filter((x) => TENSE_BY_KEY[x]);
+      if (valid.length) setTenses(valid);
+    }
+    if (n && Number(n) > 0) setLength(Math.min(60, Math.max(5, Number(n))));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const groupVerbs = useMemo(() => {
     if (useCustom && customVerbs.length) return customVerbs.map((v) => VERB_MAP[v]).filter(Boolean);
@@ -328,5 +351,13 @@ function VerbPicker({ selected, onChange }: { selected: string[]; onChange: (v: 
         })}
       </div>
     </div>
+  );
+}
+
+export default function ConjugatePage() {
+  return (
+    <Suspense fallback={<div className="card-shell p-10 text-center muted">Loading the drill…</div>}>
+      <ConjugateInner />
+    </Suspense>
   );
 }

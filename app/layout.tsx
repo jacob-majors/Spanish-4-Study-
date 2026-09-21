@@ -6,9 +6,9 @@ import Nav from "@/components/Nav";
 const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
 
 export const metadata: Metadata = {
-  title: "Verbo — Spanish study",
+  title: "SA Spanish 4 — Study Tool",
   description:
-    "Flashcards, spaced-repetition learning, practice tests and full conjugation drills for Spanish 4.",
+    "Vocabulary, conjugation drills and practice tests built from the SA Spanish 4 review packets.",
 };
 
 export const viewport: Viewport = {
@@ -29,8 +29,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Nav />
         <main className="mx-auto max-w-6xl px-4 py-6 md:py-8">{children}</main>
         <footer className="mx-auto max-w-6xl px-4 py-10 text-xs muted">
-          Verbo — flashcards, spaced repetition, practice tests and conjugation drills. Everything
-          you study is stored in this browser.
+          SA Spanish 4 — Study Tool. Vocabulary and tests come from the class packets; your progress
+          is stored in this browser.
         </footer>
       </body>
     </html>
