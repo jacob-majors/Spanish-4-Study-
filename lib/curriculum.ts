@@ -31,10 +31,11 @@ export function syncCurriculum(): void {
     });
 
     for (const cs of CURRICULUM_SETS) {
-      const cards: Card[] = cs.rows.map(([term, def]) => ({
+      const cards: Card[] = cs.rows.map(([term, def, cloze]) => ({
         id: stableId(cs.id + "|" + term),
         term,
         def,
+        ...(cloze ? { cloze } : {}),
       }));
 
       // Match on sourceId, or adopt an identically-titled set from before

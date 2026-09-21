@@ -16,6 +16,85 @@ import { CurriculumSet, ExamPlan } from "@/lib/curriculumTypes";
 
 export const CURRICULUM_SETS: CurriculumSet[] = [
   {
+    id: "la-ciudad",
+    title: "La ciudad",
+    description:
+      "Places around town, directions and street vocabulary, the people who live and work in a city, and the verbs and adjectives that go with them.",
+    color: "#45301f",
+    rows: [
+      ["las afueras", "suburbs", "Mi familia vive en ___ de la ciudad, lejos del ruido del centro."],
+      ["los alrededores", "outskirts", "Hay muchos campos y granjas en ___ del pueblo."],
+      ["el ayuntamiento", "city hall", "Para sacar el permiso hay que ir al ___ y hablar con la alcaldesa."],
+      ["el barrio", "neighborhood", "Vivo en un ___ tranquilo donde todos los vecinos se conocen."],
+      ["el centro comercial", "(shopping) mall", "Fuimos al ___ a comprar ropa y allí mismo vimos una película."],
+      ["el cine", "movie theater", "Anoche fuimos al ___ a ver la nueva película de terror."],
+      ["la ciudad", "city", "Nueva York es una ___ enorme con millones de habitantes."],
+      ["la comisaría", "police station", "Después del robo fuimos a la ___ a denunciar lo que había pasado."],
+      ["la discoteca", "dance club", "Los sábados vamos a la ___ a bailar hasta las dos de la mañana."],
+      ["el edificio", "building", "Mi apartamento está en el quinto piso de ese ___ azul."],
+      ["la estación (de trenes/de autobuses)", "(train/bus) station"],
+      ["la estación de bomberos", "fire station", "Los bomberos salieron de la ___ en menos de dos minutos."],
+      ["la estación de policía", "police station"],
+      ["el estacionamiento", "parking lot", "No encontramos sitio en el ___ y dejamos el carro en la calle."],
+      ["el estadio", "stadium", "Cincuenta mil personas llenaron el ___ para ver el partido."],
+      ["el metro", "subway", "Es más rápido ir en ___ que en carro porque no hay tráfico bajo tierra."],
+      ["el museo", "museum", "En el ___ de arte moderno hay una exposición nueva este mes."],
+      ["la parada (de metro/de autobús)", "(subway/bus) stop"],
+      ["la plaza", "square", "Nos sentamos en un banco de la ___ a ver pasar a la gente."],
+      ["el rascacielos", "skyscraper", "Desde el último piso de ese ___ se ve toda la ciudad."],
+      ["el suburbio", "suburb", "Mi tío se mudó a un ___ tranquilo porque quería un jardín."],
+      ["la vivienda", "housing; home", "El alcalde prometió construir más ___ barata para las familias jóvenes."],
+      ["la acera", "sidewalk", "Los peatones deben caminar por la ___ y no por la calle."],
+      ["la avenida", "avenue", "La Quinta ___ es una de las calles más famosas de Nueva York."],
+      ["la calle", "street", "Mi casa está en una ___ muy estrecha del casco antiguo."],
+      ["la cuadra", "city block", "El banco está a solo una ___ de aquí; se llega caminando en un minuto."],
+      ["la dirección", "address", "Apunté la ___ en un papel para no perderme al buscar su casa."],
+      ["la esquina", "corner", "Te espero en la ___ de la calle Mayor con la avenida Bolívar."],
+      ["el letrero", "sign, billboard", "Un ___ enorme anunciaba la nueva tienda desde la carretera."],
+      ["el puente", "bridge", "Para llegar al otro lado del río hay que cruzar el ___."],
+      ["el semáforo", "traffic light", "Para el carro: el ___ acaba de ponerse en rojo."],
+      ["el tráfico", "traffic", "A las ocho de la mañana hay tanto ___ que tardo una hora en llegar."],
+      ["el transporte público", "public transportation", "Uso el ___ todos los días porque no tengo carro."],
+      ["cruzar", "to cross", "Hay que ___ la calle solamente cuando el semáforo está en verde."],
+      ["doblar", "to turn", "Tienes que ___ a la derecha en la próxima esquina."],
+      ["estar perdido/a", "to be lost"],
+      ["indicar el camino", "to give directions", "Un señor muy amable se paró para ___ hasta el museo."],
+      ["parar", "to stop", "El conductor tuvo que ___ de golpe porque un peatón cruzaba la calle."],
+      ["preguntar el camino", "to ask for directions", "Como no teníamos mapa, decidimos ___ a alguien de la zona."],
+      ["el/la alcalde(sa)", "mayor"],
+      ["el/la ciudadano/a", "citizen", "Todo ___ tiene derecho a votar en las elecciones municipales."],
+      ["el/la conductor(a)", "driver"],
+      ["la gente", "people", "Los domingos la ___ sale a pasear por el parque con sus familias."],
+      ["el/la pasajero/a", "passenger", "Cada ___ debe mostrar su boleto al subir al tren."],
+      ["el peatón/la peatona", "pedestrian", "El ___ esperó en la acera hasta que el semáforo cambió."],
+      ["el policía/la (mujer) policía", "policeman/woman"],
+      ["la vida nocturna", "nightlife", "Esta ciudad es famosa por su ___: hay discotecas abiertas hasta el amanecer."],
+      ["bajar", "to go down; to get off (a bus)", "Voy a ___ del autobús en la próxima parada."],
+      ["construir", "to build", "Van a ___ un rascacielos nuevo justo al lado del estadio."],
+      ["conversar", "to talk", "Nos sentamos en la plaza a ___ durante más de una hora."],
+      ["convivir", "to live together; to coexist", "En este barrio, familias de muchas culturas aprenden a ___ en paz."],
+      ["dar un paseo", "to take a stroll", "Después de cenar salimos a ___ por la avenida."],
+      ["dar una vuelta", "to take a walk/ride"],
+      ["dar una vuelta en bicicleta/carro/motocicleta", "to take a bike/car/motorcycle ride"],
+      ["disfrutar (de)", "to enjoy"],
+      ["hacer diligencias", "to run errands", "El sábado por la mañana tengo que ___: ir al banco y al correo."],
+      ["pasarlo/la bien/mal", "to have a good/bad time"],
+      ["poblar", "to settle; to populate", "Los primeros colonos llegaron a ___ esta región hace cuatrocientos años."],
+      ["quedar", "to be located; to arrange to meet", "¿Dónde ___ la comisaría? No la encuentro en el mapa."],
+      ["quedarse", "to stay", "Prefiero ___ en casa esta noche en vez de salir."],
+      ["recorrer", "to travel (around a city)", "Pasamos el domingo entero en ___ la ciudad a pie."],
+      ["relajarse", "to relax", "Después de una semana de exámenes necesito ___ un poco."],
+      ["residir", "to reside", "Mis abuelos ___ en el mismo barrio desde hace cuarenta años."],
+      ["subir", "to go up; to get on (a bus)", "Tienes que ___ al autobús por la puerta de delante."],
+      ["atrasado/a", "late, behind schedule", "El tren llegó veinte minutos ___ y perdí mi conexión."],
+      ["cotidiano/a", "everyday", "El tráfico de la mañana es un problema ___ en esta ciudad."],
+      ["inesperado/a", "unexpected", "Un accidente ___ causó un atasco enorme en la avenida."],
+      ["lleno/a", "full", "El autobús iba tan ___ que tuve que hacer el viaje de pie."],
+      ["ruidoso/a", "noisy", "No puedo dormir porque mi barrio es muy ___ por la noche."],
+      ["vacío/a", "empty", "A las seis de la mañana el estadio estaba completamente ___."],
+    ],
+  },
+  {
     id: "examen-final-vocab",
     title: "Repaso de vocabulario — Examen final",
     description:
@@ -331,4 +410,75 @@ export const CURRICULUM_SETS: CurriculumSet[] = [
  * Upcoming tests. Claude fills this in from your review packets —
  * see packets/README.md for what to hand over.
  */
-export const EXAMS: ExamPlan[] = [];
+export const EXAMS: ExamPlan[] = [
+  {
+    id: "examen-la-ciudad",
+    title: "Examen — La ciudad",
+    date: "2026-09-23",
+    format: "Mostly fill-in-the-blank on sentences, plus matching and multiple choice.",
+    source: "Vocabulary list given in class",
+    topics: [
+      "Lugares de la ciudad — el ayuntamiento, la comisaría, el rascacielos, el estadio",
+      "Las afueras, los alrededores y el suburbio — the three ways to say \"outside the city\"",
+      "En la calle — la acera, la cuadra, la esquina, el semáforo, el letrero",
+      "Dar y pedir direcciones — cruzar, doblar, parar, indicar/preguntar el camino",
+      "La gente — el ciudadano, el peatón, el pasajero, el conductor, el alcalde",
+      "Verbos de la vida urbana — recorrer, convivir, hacer diligencias, dar un paseo",
+      "Quedar vs. quedarse, subir vs. bajar",
+      "Adjetivos — atrasado, cotidiano, inesperado, lleno, ruidoso, vacío",
+    ],
+    setIds: ["la-ciudad"],
+    tenses: [],
+    verbs: [],
+    sections: [
+      { kind: "cloze", count: 22, label: "Completa la frase" },
+      { kind: "match", count: 8, label: "Emparejar" },
+      { kind: "mc", count: 6, label: "Opción múltiple" },
+      { kind: "write", count: 4, label: "Traducción escrita" },
+    ],
+    notes: [
+      {
+        heading: "Three words for \"outside the city\"",
+        body:
+          "las afueras = the suburbs, the residential edge of a city (vivo en las afueras).\nlos alrededores = the surrounding area of a specific place (en los alrededores del estadio).\nel suburbio = a single suburb. All three are plural-or-singular traps on a fill-in-the-blank — read what comes after the blank.",
+      },
+      {
+        heading: "quedar vs. quedarse",
+        body:
+          "quedar = to be located, or to arrange to meet. ¿Dónde queda el museo? · Quedamos a las ocho.\nquedarse = to stay, to remain. Me quedo en casa. If the sentence has a reflexive pronoun (me, te, se), it is quedarse.",
+      },
+      {
+        heading: "subir vs. bajar",
+        body:
+          "subir a = to get on / go up. Subí al autobús.\nbajar de = to get off / go down. Bajé del tren.\nThe preposition after the blank tells you which one: a → subir, de → bajar.",
+      },
+      {
+        heading: "Adjectives agree",
+        body:
+          "atrasado, cotidiano, inesperado, lleno, ruidoso and vacío all change ending to match the noun. El autobús está lleno, but la plaza está llena. Check the noun before you write the ending.",
+      },
+    ],
+    plan: [
+      {
+        daysBefore: 2,
+        task: "Learn the 70 terms once through — places first, then the street words.",
+        href: "/sets/la-ciudad/learn",
+      },
+      {
+        daysBefore: 1,
+        task: "Do a full run of fill-in-the-blank; it is most of the test.",
+        href: "/sets/la-ciudad/test",
+      },
+      {
+        daysBefore: 1,
+        task: "Re-read the study sheet on quedar/quedarse and subir/bajar.",
+        href: "/exams/examen-la-ciudad",
+      },
+      {
+        daysBefore: 0,
+        task: "Take the mock exam once, then redo only what you miss.",
+        href: "/exams/examen-la-ciudad/mock",
+      },
+    ],
+  },
+];

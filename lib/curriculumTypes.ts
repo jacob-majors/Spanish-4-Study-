@@ -6,17 +6,23 @@ import { TenseKey } from "./conjugation/types";
  * data/curriculum.ts and reloading updates the app, and your progress on any
  * term you have already studied carries across the update.
  */
+/**
+ * `[Spanish, English]`, or `[Spanish, English, cloze]` where the cloze is a
+ * sentence containing `___` in place of the term. A row with a cloze can be
+ * asked as a fill-in-the-blank; one without can't.
+ */
+export type CurriculumRow = [string, string] | [string, string, string];
+
 export interface CurriculumSet {
   /** Stable id — never change it once a set has been studied. */
   id: string;
   title: string;
   description?: string;
   color?: string;
-  /** [Spanish, English] */
-  rows: [string, string][];
+  rows: CurriculumRow[];
 }
 
-export type QuestionKind = "mc" | "write" | "tf" | "match" | "conj";
+export type QuestionKind = "mc" | "write" | "tf" | "match" | "conj" | "cloze";
 
 export interface ExamSection {
   kind: QuestionKind;

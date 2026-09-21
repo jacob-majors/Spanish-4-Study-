@@ -4,6 +4,8 @@ export interface Card {
   def: string; // English
   hint?: string;
   starred?: boolean;
+  /** A sentence with `___` where the term belongs, for fill-in-the-blank. */
+  cloze?: string;
 }
 
 /** Leitner-style scheduling state, stored per card per direction. */
@@ -34,7 +36,7 @@ export type Direction = "es-en" | "en-es";
 
 export interface TestQuestion {
   id: string;
-  kind: "mc" | "write" | "tf" | "match" | "conj";
+  kind: "mc" | "write" | "tf" | "match" | "conj" | "cloze";
   prompt: string;
   answer: string;
   choices?: string[];
@@ -47,6 +49,8 @@ export interface TestQuestion {
   strict?: boolean;
   /** Shown above a conjugation prompt: "pretérito · nosotros". */
   subPrompt?: string;
+  /** For a cloze: the sentence, with `___` marking the blank. */
+  sentence?: string;
 }
 
 export interface TestResult {

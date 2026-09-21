@@ -83,7 +83,13 @@ export default function TestPage() {
 
       <Field label="Tipos de pregunta">
         <div className="grid gap-x-8 gap-y-2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 13rem), 1fr))" }}>
-          {([["mc", "Multiple choice"], ["write", "Written answer"], ["tf", "True / false"], ["match", "Matching"]] as const).map(([k, label]) => (
+          {([
+            ["cloze", "Fill in the blank"],
+            ["mc", "Multiple choice"],
+            ["write", "Written answer"],
+            ["tf", "True / false"],
+            ["match", "Matching"],
+          ] as const).map(([k, label]) => (
             <Toggle key={k} checked={cfg.kinds[k]} label={label}
               onChange={(v) => setCfg({ ...cfg, kinds: { ...cfg.kinds, [k]: v } })} />
           ))}

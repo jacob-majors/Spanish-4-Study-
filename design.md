@@ -101,6 +101,25 @@ Motion-cut project. No library, and none is to be added.
 - Copy pattern: bare imperative verb phrase. "Start the drill", not "Get
   started". Never "Learn more".
 
+## Question types
+
+Six: multiple choice, written answer, true/false, matching, conjugation, and
+**fill-in-the-blank**. A fill-in-the-blank can only be built from a curriculum
+row that carries a third field — the sentence, with `___` where the term goes —
+so adding one is a data change, not a code change.
+
+Typed answers (written, fill-in-the-blank) are graded leniently: a leading
+article is optional and a one-character slip still counts. Conjugation answers
+are graded strictly, accents included.
+
+## Conjugation scope
+
+The app offers four tenses — presente, pretérito, imperfecto, condicional —
+because that is what the class covers. The engine still conjugates all 18 and
+the test suite still checks them; `ACTIVE_TENSE_KEYS` in
+`lib/conjugation/types.ts` is the single list that decides what the drill and
+the verb tables show.
+
 ## Per-page allowances
 
 - Index pages: typography only. No enrichment, ever.

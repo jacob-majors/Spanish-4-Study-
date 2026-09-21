@@ -5,10 +5,8 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { conjugate } from "@/lib/conjugation/engine";
 import { VERB_LIST } from "@/lib/conjugation/verbs";
-import { TENSES, PERSON_LABELS, TenseKey } from "@/lib/conjugation/types";
+import { ACTIVE_TENSES, PERSON_LABELS, TenseKey } from "@/lib/conjugation/types";
 import { SpeakButton } from "@/components/ui";
-
-const MOODS = ["Indicativo", "Subjuntivo", "Imperativo", "Formas impersonales"] as const;
 
 function Tables() {
   const params = useSearchParams();
@@ -57,31 +55,23 @@ function Tables() {
           <span className="muted" style={{ fontSize: "var(--text-lg)" }}>{verb.english}</span>
         </div>
         <div className="flex flex-wrap gap-x-6 gap-y-1" style={{ marginTop: "var(--space-sm)" }}>
-          <span className="tag">gerundio <span className="data" style={{ color: "var(--color-ink)" }}>{conjugate(verb, "gerundio")[0]}</span></span>
-          <span className="tag">participio <span className="data" style={{ color: "var(--color-ink)" }}>{conjugate(verb, "participio")[0]}</span></span>
           {verb.tags?.map((t) => <span key={t} className="tag">{t}</span>)}
         </div>
       </header>
 
-      {MOODS.map((mood) => {
-        const tenses = TENSES.filter((t) => t.mood === mood && !t.single);
-        if (!tenses.length) return null;
-        return (
-          <section key={mood} style={{ marginTop: "var(--space-xl)" }}>
-            <h3 className="label" style={{ borderBottom: "var(--rule-hair) solid var(--color-rule-2)", paddingBottom: "var(--space-2xs)" }}>
-              {mood}
-            </h3>
-            <div
-              className="grid gap-x-10 gap-y-6"
-              style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 17rem), 1fr))", marginTop: "var(--space-md)" }}
-            >
-              {tenses.map((t) => (
-                <TenseTable key={t.key} verb={verb.infinitive} tense={t.key} name={t.name} english={t.english} />
-              ))}
-            </div>
-          </section>
-        );
-      })}
+      <section style={{ marginTop: "var(--space-xl)" }}>
+        <h3 className="label" style={{ borderBottom: "var(--rule-hair) solid var(--color-rule-2)", paddingBottom: "var(--space-2xs)" }}>
+          Indicativo
+        </h3>
+        <div
+          className="grid gap-x-10 gap-y-6"
+          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 17rem), 1fr))", marginTop: "var(--space-md)" }}
+        >
+          {ACTIVE_TENSES.map((t) => (
+            <TenseTable key={t.key} verb={verb.infinitive} tense={t.key} name={t.name} english={t.english} />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

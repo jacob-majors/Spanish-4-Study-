@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { conjugate } from "@/lib/conjugation/engine";
 import { VERB_LIST, VERB_GROUPS, VERB_MAP } from "@/lib/conjugation/verbs";
-import { TENSES, TENSE_BY_KEY, TenseKey, PERSON_LABELS, VerbEntry } from "@/lib/conjugation/types";
+import { ACTIVE_TENSES, ACTIVE_TENSE_KEYS, TENSE_BY_KEY, TenseKey, PERSON_LABELS, VerbEntry } from "@/lib/conjugation/types";
 import { gradeConjugation } from "@/lib/grade";
 import { shuffle } from "@/lib/srs";
 import { recordDrill } from "@/lib/storage";
@@ -15,7 +15,6 @@ import { AccentKeys, ProgressBar, Toggle, Choice, useLocalState } from "@/compon
 interface Prompt { verb: VerbEntry; tense: TenseKey; person: number; answer: string }
 
 const DEFAULT_TENSES: TenseKey[] = ["presente", "preterito", "imperfecto"];
-const MOODS = ["Indicativo", "Subjuntivo", "Imperativo", "Formas impersonales"] as const;
 
 function ConjugateInner() {
   const [group, setGroup] = useLocalState<string>("sa.drill.group", "top");
@@ -35,6 +34,14 @@ function ConjugateInner() {
   const [startedAt, setStartedAt] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // A tense list saved before the app was narrowed to four tenses can still
+  // hold keys that are no longer offered; drop them rather than drilling them.
+  useEffect(() => {
+    const clean = tenses.filter((t) => ACTIVE_TENSE_KEYS.includes(t));
+    if (clean.length !== tenses.length) setTenses(clean.length ? clean : DEFAULT_TENSES);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tenses.join(",")]);
+
   const search = useSearchParams();
   useEffect(() => {
     const g = search.get("group");
@@ -49,7 +56,9 @@ function ConjugateInner() {
       setUseCustom(false);
     }
     if (t) {
-      const valid = (t.split(",").map((x) => x.trim()) as TenseKey[]).filter((x) => TENSE_BY_KEY[x]);
+      const valid = (t.split(",").map((x) => x.trim()) as TenseKey[]).filter((x) =>
+        ACTIVE_TENSE_KEYS.includes(x),
+      );
       if (valid.length) setTenses(valid);
     }
     if (n && Number(n) > 0) setLength(Math.min(60, Math.max(5, Number(n))));
@@ -125,8 +134,8 @@ function ConjugateInner() {
           Preparar un drill
         </h1>
         <p className="muted measure" style={{ marginTop: "var(--space-sm)" }}>
-          {VERB_LIST.length} verbs across {TENSES.length} tenses. Set it to exactly what your test
-          covers and drill only that.
+          {VERB_LIST.length} verbs across the four tenses the class covers. Set it to exactly what
+          your test asks for and drill only that.
         </p>
 
         <Field label="Verbos" note={
@@ -149,22 +158,16 @@ function ConjugateInner() {
         </Field>
 
         <Field label="Tiempos">
-          {MOODS.map((mood) => (
-            <div key={mood} style={{ marginBottom: "var(--space-sm)" }}>
-              <p className="tag" style={{ marginBottom: "var(--space-2xs)" }}>{mood}</p>
-              <div className="flex flex-wrap gap-2">
-                {TENSES.filter((t) => t.mood === mood).map((t) => (
-                  <Choice key={t.key} title={`${t.english} — e.g. ${t.example}`} on={tenses.includes(t.key)}
-                    onClick={() => setTenses(tenses.includes(t.key) ? tenses.filter((x) => x !== t.key) : [...tenses, t.key])}>
-                    {t.name}
-                  </Choice>
-                ))}
-              </div>
-            </div>
-          ))}
-          <div className="flex flex-wrap gap-4" style={{ marginTop: "var(--space-xs)" }}>
-            <button className="link label" onClick={() => setTenses(TENSES.map((t) => t.key))}>Select all</button>
-            <button className="link label" onClick={() => setTenses(DEFAULT_TENSES)}>Just the basics</button>
+          <div className="flex flex-wrap gap-2">
+            {ACTIVE_TENSES.map((t) => (
+              <Choice key={t.key} title={`${t.english} — e.g. ${t.example}`} on={tenses.includes(t.key)}
+                onClick={() => setTenses(tenses.includes(t.key) ? tenses.filter((x) => x !== t.key) : [...tenses, t.key])}>
+                {t.name}
+              </Choice>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-4" style={{ marginTop: "var(--space-md)" }}>
+            <button className="link label" onClick={() => setTenses(ACTIVE_TENSE_KEYS)}>Select all</button>
             <button className="link label" onClick={() => setTenses([])}>Clear</button>
           </div>
         </Field>

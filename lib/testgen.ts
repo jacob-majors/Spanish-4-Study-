@@ -5,7 +5,7 @@ import { uid } from "./storage";
 export interface TestConfig {
   count: number;
   direction: Direction | "both";
-  kinds: { mc: boolean; write: boolean; tf: boolean; match: boolean };
+  kinds: { mc: boolean; write: boolean; tf: boolean; match: boolean; cloze: boolean };
   /** Weight the test toward the cards you keep getting wrong. */
   focusWeak: boolean;
   starredOnly: boolean;
@@ -15,7 +15,7 @@ export interface TestConfig {
 export const DEFAULT_CONFIG: TestConfig = {
   count: 20,
   direction: "both",
-  kinds: { mc: true, write: true, tf: true, match: true },
+  kinds: { mc: true, write: true, tf: true, match: true, cloze: true },
   focusWeak: true,
   starredOnly: false,
   instantFeedback: false,
@@ -63,16 +63,33 @@ export function buildTest(set: StudySet, cfg: TestConfig): TestQuestion[] {
     ordered = shuffle(pool);
   }
 
+  // Fill-in-the-blank can only use cards that carry a sentence.
+  const clozePool = pool.filter((c) => c.cloze);
+  const wantCloze = cfg.kinds.cloze && clozePool.length >= 4;
+
   const wantMatch = cfg.kinds.match && pool.length >= 8;
   const matchGroups = wantMatch ? Math.max(1, Math.floor(cfg.count / 10)) : 0;
   const matchCards = matchGroups * 4;
   const singleCount = Math.max(0, Math.min(cfg.count - matchGroups, ordered.length * 2));
 
   const questions: TestQuestion[] = [];
-  const singleKinds = kinds.filter((k) => k !== "match");
-  if (!singleKinds.length) singleKinds.push("mc");
+  const singleKinds = kinds.filter((k) => k !== "match" && k !== "cloze");
+  if (!singleKinds.length && !wantCloze) singleKinds.push("mc");
 
-  for (let i = 0; i < singleCount; i++) {
+  // Give fill-in-the-blank up to a third of the paper when it is switched on.
+  const clozeCount = wantCloze
+    ? Math.min(clozePool.length, Math.max(1, Math.round(cfg.count / 3)))
+    : 0;
+  if (clozeCount) {
+    for (const card of sample(clozePool, clozeCount)) {
+      questions.push({
+        id: uid(), kind: "cloze", prompt: card.def, sentence: card.cloze,
+        answer: card.term, cardId: card.id, note: "Completa la frase",
+      });
+    }
+  }
+
+  for (let i = 0; i < Math.max(0, singleCount - clozeCount) && singleKinds.length; i++) {
     const card = ordered[i % ordered.length];
     const dir: Direction =
       cfg.direction === "both" ? (i % 2 === 0 ? "es-en" : "en-es") : cfg.direction;

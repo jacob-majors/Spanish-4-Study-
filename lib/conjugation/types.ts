@@ -68,6 +68,22 @@ export const TENSE_BY_KEY: Record<TenseKey, TenseMeta> = Object.fromEntries(
   TENSES.map((t) => [t.key, t]),
 ) as Record<TenseKey, TenseMeta>;
 
+/**
+ * The tenses the app actually offers — what SA Spanish 4 covers.
+ *
+ * The engine still conjugates all 18 (and the tests still check them), so
+ * adding a tense back is a one-line change here: drop its key into this list
+ * and it reappears in the drill and the verb tables.
+ */
+export const ACTIVE_TENSE_KEYS: TenseKey[] = [
+  "presente",
+  "preterito",
+  "imperfecto",
+  "condicional",
+];
+
+export const ACTIVE_TENSES: TenseMeta[] = ACTIVE_TENSE_KEYS.map((k) => TENSE_BY_KEY[k]);
+
 export type StemChange =
   | "e:ie"
   | "o:ue"

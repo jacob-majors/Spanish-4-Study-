@@ -1,7 +1,7 @@
 import VoiceLabel from "@/components/VoiceLabel";
 import { CURRICULUM_SETS } from "@/data/curriculum";
 import { VERB_LIST } from "@/lib/conjugation/verbs";
-import { TENSES } from "@/lib/conjugation/types";
+import { ACTIVE_TENSES } from "@/lib/conjugation/types";
 
 /**
  * Ft4 · dense colophon. Real counts only — nothing here is invented.
@@ -25,7 +25,7 @@ export default function Colophon() {
         }}
       >
         SA Español 4 — Study Tool. {sets} vocabulary {sets === 1 ? "set" : "sets"}, {terms} terms.{" "}
-        {VERB_LIST.length} verbs across {TENSES.length} tenses. Vocabulary and tests are generated
+        {VERB_LIST.length} verbs across {ACTIVE_TENSES.length} tenses. Vocabulary and tests are generated
         from the class packets in data/curriculum.ts. Progress is stored in this browser only.
         Set in Fraunces, IBM Plex Sans and JetBrains Mono.
         <VoiceLabel />

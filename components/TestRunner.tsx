@@ -84,7 +84,10 @@ export default function TestRunner({
       const given = String(answers[q.id] ?? "");
       let ok: boolean;
       if (q.kind === "conj") ok = gradeConjugation(given, q.answer).pass;
-      else if (q.kind === "write") ok = grade(given, q.answer, { allowTypos: true }).pass;
+      else if (q.kind === "write" || q.kind === "cloze")
+        // Typed answers are graded leniently: a leading article is optional
+        // ("esquina" for "la esquina") and a one-character slip still counts.
+        ok = grade(given, q.answer, { allowTypos: true }).pass;
       else ok = given.trim().toLowerCase() === q.answer.trim().toLowerCase();
       if (ok) score += 1;
       return { q, rows: null, ok, yours: given, correct: q.answer };
@@ -148,7 +151,9 @@ export default function TestRunner({
                     ? <>{d.q.prompt} <span className="muted">=</span> {d.q.shown}</>
                     : d.q.kind === "conj"
                       ? <><span className="display" style={{ fontSize: "var(--text-lg)" }}>{d.q.prompt}</span> <span className="tag">{d.q.subPrompt}</span></>
-                      : d.q.prompt}
+                      : d.q.kind === "cloze"
+                        ? <>{(d.q.sentence ?? "").split("___")[0]}<span className="data" style={{ color: d.ok ? "var(--color-good)" : "var(--color-accent)" }}>{d.yours || "______"}</span>{(d.q.sentence ?? "").split("___")[1]}</>
+                        : d.q.prompt}
                 </div>
                 {d.rows ? (
                   <table className="sheet" style={{ marginTop: "var(--space-2xs)" }}>
@@ -271,6 +276,50 @@ function QuestionRow({ q, n, value, onChange }: {
               ))}
             </tbody>
           </table>
+        </div>
+      </li>
+    );
+  }
+
+  if (q.kind === "cloze") {
+    const [before, after] = (q.sentence ?? "___").split("___");
+    const typed = String(value ?? "");
+    return (
+      <li className="flex gap-4" style={{ borderTop: "var(--rule-hair) solid var(--color-rule)", paddingBlock: "var(--space-md)" }}>
+        {num}
+        <div className="flex-1 min-w-0">
+          <p className="label">Completa la frase — {q.prompt}</p>
+          {/* The blank sits inside the sentence, the way it does on the paper. */}
+          <p style={{ fontSize: "var(--text-lg)", lineHeight: 2.2, marginTop: "var(--space-2xs)" }}>
+            {before}
+            <input
+              ref={inputRef}
+              className="data"
+              aria-label={`Fill in the blank: ${q.prompt}`}
+              value={typed}
+              autoComplete="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              onChange={(e) => onChange(e.target.value)}
+              style={{
+                width: `${Math.max(10, typed.length + 3)}ch`,
+                maxWidth: "100%",
+                background: "transparent",
+                border: 0,
+                borderBottom: "var(--rule-thick) solid var(--color-rule-2)",
+                borderRadius: 0,
+                padding: "0 var(--space-3xs)",
+                color: "var(--color-accent)",
+                fontSize: "var(--text-md)",
+                outline: "none",
+                textAlign: "center",
+              }}
+            />
+            {after}
+          </p>
+          <div style={{ marginTop: "var(--space-xs)" }}>
+            <AccentKeys onInsert={(ch) => { onChange(typed + ch); inputRef.current?.focus(); }} />
+          </div>
         </div>
       </li>
     );

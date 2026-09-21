@@ -30,6 +30,24 @@ function verbsForExam(exam: ExamPlan): VerbEntry[] {
   return VERB_LIST.filter((v) => v.tags?.includes("top"));
 }
 
+/**
+ * Fill-in-the-blank. Only cards that carry a sentence can be asked this way,
+ * so the section quietly shrinks if the set has fewer than `count` of them.
+ */
+function clozeQuestions(pool: Card[], count: number): TestQuestion[] {
+  const withSentence = pool.filter((c) => c.cloze);
+  if (!withSentence.length) return [];
+  return sample(withSentence, Math.min(count, withSentence.length)).map((c) => ({
+    id: uid(),
+    kind: "cloze" as const,
+    prompt: c.def,
+    sentence: c.cloze,
+    answer: c.term,
+    cardId: c.id,
+    note: "Completa la frase",
+  }));
+}
+
 function conjugationQuestions(exam: ExamPlan, count: number): TestQuestion[] {
   if (!count || !exam.tenses.length) return [];
   const verbs = verbsForExam(exam);
@@ -81,6 +99,11 @@ export function buildMockExam(exam: ExamPlan, sets: StudySet[]): TestQuestion[] 
       continue;
     }
     if (!pool.length) continue;
+
+    if (section.kind === "cloze") {
+      questions.push(...clozeQuestions(pool, n));
+      continue;
+    }
 
     if (section.kind === "match") {
       const groups = Math.max(1, Math.ceil(n / 4));
